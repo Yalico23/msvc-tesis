@@ -8,9 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginUserResponse {
-    private String token;
+    private String jwt;
     private String email;
     private String role;
-    private long expiresIn;
-    private String error;
 }
