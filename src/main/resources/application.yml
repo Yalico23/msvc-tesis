@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: msvc-tesis
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/msvc_tesis
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
+    disable-swagger-default-url: true
+    operationsSorter: method

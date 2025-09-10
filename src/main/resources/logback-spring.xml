@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOGS" value="./logs" />
+
+    <!-- Console Appender con patrón mejorado -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%logger{20}) [%green(%X{traceId:-}-%X{spanId:-})] : %msg%n%ex{full}
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Rolling File Appender con patrón mejorado -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/spring-boot-logger.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d %p %logger{20} [%t] [%X{traceId:-}-%X{spanId:-}] %m%n%ex{full}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Async Appender para mejor rendimiento -->
+    <appender name="Async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="RollingFile" />
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <!-- Log a nivel INFO por defecto -->
+    <root level="info">
+        <appender-ref ref="Async" />
+        <appender-ref ref="Console" />
+    </root>
+
+    <!-- Permitir DEBUG y TRACE en com.baeldung -->
+    <logger name="com.baeldung" level="debug" additivity="false">
+        <appender-ref ref="Async" />
+        <appender-ref ref="Console" />
+    </logger>
+
+    <!-- Reducir ruido de loggers comúnmente verbosos -->
+    <logger name="org.apache.catalina" level="WARN"/>
+    <logger name="org.apache.tomcat" level="WARN"/>
+    <logger name="org.apache.http" level="WARN"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+</configuration>
