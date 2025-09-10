@@ -4,6 +4,7 @@ import com.tesis.proyect.app.application.services.RolService;
 import com.tesis.proyect.app.application.services.UserService;
 import com.tesis.proyect.app.application.usecases.rol.CreateRolUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.CreateUserUseCaseImpl;
+import com.tesis.proyect.app.application.usecases.user.FindUserUSerCaseImpl;
 import com.tesis.proyect.app.domain.ports.output.RolRepositoryPort;
 import com.tesis.proyect.app.domain.ports.output.UserRepositoryPort;
 import com.tesis.proyect.app.infrastructure.repositories.RolEntityAdapter;
@@ -28,7 +29,8 @@ public class ApplicationConfig {
     @Bean
     public UserService userService(UserRepositoryPort userRepositoryPort, RolRepositoryPort rolRepositoryPort, PasswordEncoder passwordEncoder) {
         return new UserService(
-                new CreateUserUseCaseImpl(userRepositoryPort, rolRepositoryPort, passwordEncoder)
+                new CreateUserUseCaseImpl(userRepositoryPort, rolRepositoryPort, passwordEncoder),
+                new FindUserUSerCaseImpl(userRepositoryPort)
         );
     }
 
