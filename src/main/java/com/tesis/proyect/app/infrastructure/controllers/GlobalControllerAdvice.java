@@ -2,11 +2,10 @@ package com.tesis.proyect.app.infrastructure.controllers;
 
 import com.tesis.proyect.app.domain.models.ErrorResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,18 +25,18 @@ public class GlobalControllerAdvice {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorResponse handleErrorResponse(MethodArgumentNotValidException exception) {
-
-        BindingResult result = exception.getBindingResult();
-
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ErrorResponse handleValidationException(WebExchangeBindException exception) {
         return ErrorResponse.builder()
                 .code("BadRequest 400")
                 .message("Validation failed for one or more fields")
-                .details(result.getFieldErrors()
-                        .stream()
-                        .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                        .toList())
+                .details(
+                        exception.getFieldErrors()
+                                .stream()
+                                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                                .toList()
+                )
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }
