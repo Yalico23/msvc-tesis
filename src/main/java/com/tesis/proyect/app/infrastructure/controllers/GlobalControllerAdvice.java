@@ -4,6 +4,8 @@ import com.tesis.proyect.app.domain.exceptions.InvalidCredentialsException;
 import com.tesis.proyect.app.domain.exceptions.NoActiveUserException;
 import com.tesis.proyect.app.domain.models.ErrorResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -60,6 +62,30 @@ public class GlobalControllerAdvice {
                 .code("Unauthorized 401")
                 .message(ex.getMessage())
                 .details(List.of("El estado del usuario no es activo"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ErrorResponse handleAccessDenied(AccessDeniedException ex) {
+        return ErrorResponse.builder()
+                .code("Forbidden 403")
+                .message("Access denied")
+                .details(List.of("No tienes permisos suficientes para acceder a este recurso"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+    // Falla
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler({io.jsonwebtoken.ExpiredJwtException.class,
+            io.jsonwebtoken.JwtException.class,
+            io.jsonwebtoken.MalformedJwtException.class})
+    public ErrorResponse handleJwtException(Exception ex) {
+        return ErrorResponse.builder()
+                .code("Unauthorized 401")
+                .message("Invalid or expired token")
+                .details(List.of("El token JWT es inválido o ha expirado"))
                 .timestamp(LocalDateTime.now())
                 .build();
     }
