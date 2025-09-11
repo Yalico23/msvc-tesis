@@ -1,5 +1,7 @@
 package com.tesis.proyect.app.infrastructure.controllers;
 
+import com.tesis.proyect.app.domain.exceptions.InvalidCredentialsException;
+import com.tesis.proyect.app.domain.exceptions.NoActiveUserException;
 import com.tesis.proyect.app.domain.models.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,4 +41,27 @@ public class GlobalControllerAdvice {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ErrorResponse handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ErrorResponse.builder()
+                .code("Unauthorized 401")
+                .message(ex.getMessage())
+                .details(List.of("El email o la contraseña son incorrectos"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(NoActiveUserException.class)
+    public ErrorResponse handleInvalidCredentials(NoActiveUserException ex) {
+        return ErrorResponse.builder()
+                .code("Unauthorized 401")
+                .message(ex.getMessage())
+                .details(List.of("El estado del usuario no es activo"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
 }

@@ -40,14 +40,8 @@ public class AuthController {
                                     user.getEmail(),
                                     roleName
                             );
-
                             return ResponseEntity.ok(response);
                         })
-                )
-                .onErrorResume(err -> {
-                    log.error("Error en login: {}", err.getMessage(), err);
-                    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-                });
+                );
     }
-
 }

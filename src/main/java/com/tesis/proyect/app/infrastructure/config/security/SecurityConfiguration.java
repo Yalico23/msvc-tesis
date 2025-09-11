@@ -39,6 +39,8 @@ public class SecurityConfiguration {
                                         "/api/user/v1/create",    // endpoint público
                                         "/auth/**"                 // endpoint público
                                 ).permitAll()
+                                .pathMatchers("/api/user/v1/reclutador/**").hasRole("RECLUTADOR")
+                                .pathMatchers("/api/user/v1/practicante/**").hasRole("PRACTICANTE")
                                 .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)

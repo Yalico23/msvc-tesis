@@ -2,10 +2,11 @@ package com.tesis.proyect.app.infrastructure.config.security.helpers;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,7 @@ public class JwtHelper {
 
     public String generateJwt(String subjec, List<String> roles) {
         final Date now = new Date();
-        // 1 hora en milisegundos
-        final Date exp = new Date(now.getTime() + 3600000L); // 1 hora
+        final Date exp = Date.from(Instant.now().plus(Duration.ofHours(5)));
 
         return Jwts.builder()
                 .subject(subjec)
@@ -48,9 +48,7 @@ public class JwtHelper {
     }
 
     private SecretKey getSecretKey() {
-        // Cambia esto por tu clave secreta real
-        String secret = "mysupersecretkeymysupersecretkey123456";
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        return Jwts.SIG.HS256.key().build();
     }
 
     private Claims getClaimsFromJwt(String jwt) {
@@ -60,5 +58,4 @@ public class JwtHelper {
                 .parseSignedClaims(jwt)
                 .getPayload();
     }
-
 }

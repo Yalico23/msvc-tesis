@@ -31,14 +31,12 @@ public class UserController {
                         .body(user)
                 );
     }
-
-    @PreAuthorize("hasRole('POSTULANTE')")
-    @GetMapping("/postulante")
+    
+    @GetMapping("/practicante")
     public Mono<String> adminAccess() {
         return Mono.just("Postulante access granted");
     }
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
     @GetMapping("/reclutador")
     public Mono<String> userAccess() {
         return Mono.just("Reclutador access granted");

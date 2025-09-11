@@ -1,5 +1,7 @@
 package com.tesis.proyect.app.infrastructure.config.security;
 
+import com.tesis.proyect.app.domain.exceptions.InvalidCredentialsException;
+import com.tesis.proyect.app.domain.exceptions.NoActiveUserException;
 import com.tesis.proyect.app.infrastructure.config.security.helpers.JwtHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,14 +22,20 @@ public class AuthService {
 
     public Mono<String> authenticate(String email, String password) {
         return this.customUserDetailsService.findByUsername(email)
-                .filter(userDetails -> this.passwordEncoder.matches(password, userDetails.getPassword()))
-                .map(userDetails -> {
+                .flatMap(userDetails -> {
+                    // Verificar si está activo
+                    if (!userDetails.isEnabled()) {
+                        return Mono.error(new NoActiveUserException("Usuario no activo"));
+                    }
+                    // Verificar contraseña
+                    if (!this.passwordEncoder.matches(password, userDetails.getPassword())) {
+                        return Mono.error(new InvalidCredentialsException("Invalid email or password"));
+                    }
                     List<String> roles = userDetails.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .toList();
 
-                    return this.jwtHelper.generateJwt(email,roles);
-                })
-                .switchIfEmpty(Mono.error(new RuntimeException("Invalid Credentials")));
+                    return Mono.just(this.jwtHelper.generateJwt(email, roles));
+                });
     }
 }
