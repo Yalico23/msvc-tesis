@@ -1,11 +1,11 @@
 package com.tesis.proyect.app.infrastructure.controllers;
 
 import com.tesis.proyect.app.domain.exceptions.InvalidCredentialsException;
+import com.tesis.proyect.app.domain.exceptions.JwtAuthenticationException;
 import com.tesis.proyect.app.domain.exceptions.NoActiveUserException;
 import com.tesis.proyect.app.domain.models.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -73,6 +73,17 @@ public class GlobalControllerAdvice {
                 .code("Forbidden 403")
                 .message("Access denied")
                 .details(List.of("No tienes permisos suficientes para acceder a este recurso"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ErrorResponse handleJwtAuthenticationException(JwtAuthenticationException ex) {
+        return ErrorResponse.builder()
+                .code("Unauthorized 401")
+                .message("Token JWT inválido")
+                .details(List.of(ex.getMessage()))
                 .timestamp(LocalDateTime.now())
                 .build();
     }

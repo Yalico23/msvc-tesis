@@ -1,8 +1,8 @@
 package com.tesis.proyect.app.infrastructure.config.security.helpers;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JwtHelper {
 
@@ -35,13 +36,23 @@ public class JwtHelper {
         return (List<String>) claims.get("roles");
     }
 
-    public boolean validateJwt(String token) {
+    public boolean validateJwt(String token){
         try {
             final Claims claims = this.getClaimsFromJwt(token);
             final Date expiration = claims.getExpiration();
-            return  expiration.after(new Date());
-        }catch (Exception e) {
-            return  false;
+            return expiration.after(new Date());
+        } catch (ExpiredJwtException e) {
+            log.debug("Token JWT expirado: {}", e.getMessage());
+            return false;
+        } catch (MalformedJwtException e) {
+            log.debug("Token JWT malformado: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.debug("Error en token JWT: {}", e.getMessage());
+            return false;
+        } catch (Exception e) {
+            log.error("Error inesperado validando JWT: {}", e.getMessage());
+            return false;
         }
     }
 
