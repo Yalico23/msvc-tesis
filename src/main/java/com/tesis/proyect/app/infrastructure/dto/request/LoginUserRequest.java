@@ -12,9 +12,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class LoginUserRequest {
-    @Email
-    @NotBlank
+    @Email(message = "El email debe tener un formato válido")
+    @NotBlank(message = "El email no puede estar vacío")
     private String email;
-    @NotBlank
+    @NotBlank(message = "La contraseña no puede estar vacía")
     private String password;
 }
