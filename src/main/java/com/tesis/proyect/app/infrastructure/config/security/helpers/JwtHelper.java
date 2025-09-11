@@ -1,25 +1,28 @@
 package com.tesis.proyect.app.infrastructure.config.security.helpers;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JwtHelper {
 
-    public String generateJwt(String subjec, List<String> roles) {
+    public String generateJwt(String subject, List<String> roles) {
         final Date now = new Date();
-        // 1 hora en milisegundos
-        final Date exp = new Date(now.getTime() + 3600000L); // 1 hora
+        final Date exp = Date.from(Instant.now().plus(Duration.ofMinutes(3)));
 
         return Jwts.builder()
-                .subject(subjec)
+                .subject(subject)
                 .issuedAt(now)
                 .expiration(exp)
                 .claims(Map.of("roles", roles))
@@ -33,13 +36,23 @@ public class JwtHelper {
         return (List<String>) claims.get("roles");
     }
 
-    public boolean validateJwt(String token) {
+    public boolean validateJwt(String token){
         try {
             final Claims claims = this.getClaimsFromJwt(token);
             final Date expiration = claims.getExpiration();
-            return  expiration.after(new Date());
-        }catch (Exception e) {
-            return  false;
+            return expiration.after(new Date());
+        } catch (ExpiredJwtException e) {
+            log.debug("Token JWT expirado: {}", e.getMessage());
+            return false;
+        } catch (MalformedJwtException e) {
+            log.debug("Token JWT malformado: {}", e.getMessage());
+            return false;
+        } catch (JwtException e) {
+            log.debug("Error en token JWT: {}", e.getMessage());
+            return false;
+        } catch (Exception e) {
+            log.error("Error inesperado validando JWT: {}", e.getMessage());
+            return false;
         }
     }
 
@@ -48,9 +61,8 @@ public class JwtHelper {
     }
 
     private SecretKey getSecretKey() {
-        // Cambia esto por tu clave secreta real
-        String secret = "mysupersecretkeymysupersecretkey123456";
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        final String secretKey  = "mysecretkeymysecretkeymysecretkey";
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     private Claims getClaimsFromJwt(String jwt) {
@@ -60,5 +72,4 @@ public class JwtHelper {
                 .parseSignedClaims(jwt)
                 .getPayload();
     }
-
 }

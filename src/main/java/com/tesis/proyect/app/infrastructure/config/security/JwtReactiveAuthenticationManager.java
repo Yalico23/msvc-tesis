@@ -1,5 +1,6 @@
 package com.tesis.proyect.app.infrastructure.config.security;
 
+import com.tesis.proyect.app.domain.exceptions.JwtAuthenticationException;
 import com.tesis.proyect.app.infrastructure.config.security.helpers.JwtHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -24,17 +25,16 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
         final String jwt = authentication.getCredentials().toString();
 
         if (!jwtHelper.validateJwt(jwt)) {
-            return Mono.empty();
+            return Mono.error(new JwtAuthenticationException("Invalid token o Expired token"));
         }
+        return Mono.fromCallable(() -> {
+            final String username = jwtHelper.getUsernameFromJwt(jwt);
+            final List<String> roles = jwtHelper.getRolesFromJwt(jwt);
+            final List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
 
-        final String username = jwtHelper.getUsernameFromJwt(jwt);
-        final List<String> roles = jwtHelper.getRolesFromJwt(jwt);
-        final List<GrantedAuthority> authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
-        final Authentication authJwt = new UsernamePasswordAuthenticationToken(username, null, authorities);
-
-        return Mono.just(authJwt);
+            return UsernamePasswordAuthenticationToken.authenticated(username, null, authorities);
+        });
     }
 }

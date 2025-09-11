@@ -4,9 +4,9 @@ import com.tesis.proyect.app.application.services.UserService;
 import com.tesis.proyect.app.infrastructure.config.security.AuthService;
 import com.tesis.proyect.app.infrastructure.dto.request.LoginUserRequest;
 import com.tesis.proyect.app.infrastructure.dto.response.LoginUserResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public Mono<ResponseEntity<LoginUserResponse>> login(@RequestBody LoginUserRequest loginUserRequest) {
+    public Mono<ResponseEntity<LoginUserResponse>> login(@Valid @RequestBody LoginUserRequest loginUserRequest) {
         log.info("Intentando login con email={}", loginUserRequest.getEmail());
 
         return this.authService.authenticate(loginUserRequest.getEmail(), loginUserRequest.getPassword())
@@ -39,14 +39,8 @@ public class AuthController {
                                     user.getEmail(),
                                     roleName
                             );
-
                             return ResponseEntity.ok(response);
                         })
-                )
-                .onErrorResume(err -> {
-                    log.error("Error en login: {}", err.getMessage(), err);
-                    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-                });
+                );
     }
-
 }

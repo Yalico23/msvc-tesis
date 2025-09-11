@@ -1,43 +1,53 @@
 package com.tesis.proyect.app.infrastructure.config;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(
-        info = @io.swagger.v3.oas.annotations.info.Info(title = "API Entrevistas", version = "1.0"),
-        security = @SecurityRequirement(name = "bearerAuth")
-)
-@SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
 public class SwaggerConfig {
     @Bean
     public OpenAPI hotelCleaningMaterialsOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Sistema de Gestión de Materiales de Limpieza - Hotel")
-                        .description("API para la administración de inventario, control de stock, " +
-                                "solicitudes y distribución de materiales de limpieza en un hotel. " +
-                                "Incluye funcionalidades para áreas como housekeeping, bodega y compras.")
+                        .title("API Entrevistas Automatizadas con IA")
+                        .description("""
+                                Plataforma de entrevistas automatizadas que utiliza Inteligencia Artificial
+                                para optimizar los procesos de selección y evaluación de candidatos.
+                                
+                                Funcionalidades principales:
+                                - Creación, gestión y ejecución de entrevistas automatizadas.
+                                - Integración con Amazon Chime SDK para videollamadas y grabación.
+                                - Generación de voz con Amazon Polly para preguntas automatizadas.
+                                - Almacenamiento seguro de grabaciones y resultados en Amazon S3.
+                                - Gestión de practicantes, entrevistadores y resultados evaluados por IA.
+                                
+                                Esta API permite a los desarrolladores integrar fácilmente servicios
+                                de entrevistas inteligentes en sus sistemas de recursos humanos,
+                                ofreciendo escalabilidad, trazabilidad y análisis avanzado.
+                                """)
                         .version("1.0.0")
                         .contact(new Contact()
-                                .name("Soporte Técnico - Hotel")
-                                .url("https://www.hotel-ejemplo.com/soporte")
-                                .email("soporte@hotel-ejemplo.com"))
+                                .name("Soporte Técnico - Plataforma de Entrevistas IA")
+                                .url("https://www.entrevistas-ia.com/soporte")
+                                .email("soporte@entrevistas-ia.com"))
                         .license(new License()
-                                .name("Licencia Privada - Hotel")
-                                .url("https://www.hotel-ejemplo.com/licencia")));
+                                .name("Licencia Privada - Entrevistas IA")
+                                .url("https://www.entrevistas-ia.com/licencia")))
+
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new Components()
+                        .addSecuritySchemes("bearerAuth",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .description("Token JWT para autenticación")));
     }
 }

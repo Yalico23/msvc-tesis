@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
                             .accountExpired(false)
                             .accountLocked(false)
                             .credentialsExpired(false)
-                            .disabled(user.getActive())
+                            .disabled(!user.getActive())
                             .build();
                 });
     }

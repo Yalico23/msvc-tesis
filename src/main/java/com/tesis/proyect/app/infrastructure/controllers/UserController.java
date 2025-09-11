@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/user/v1")
+@RequestMapping("/api/user")
 public class UserController {
 
     private final UserService userService;
@@ -32,8 +32,8 @@ public class UserController {
                 );
     }
 
-    @PreAuthorize("hasRole('POSTULANTE')")
-    @GetMapping("/postulante")
+    @PreAuthorize("hasRole('PRACTICANTE')")
+    @GetMapping("/practicante")
     public Mono<String> adminAccess() {
         return Mono.just("Postulante access granted");
     }
