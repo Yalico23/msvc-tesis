@@ -18,7 +18,7 @@ public class JwtHelper {
 
     public String generateJwt(String subject, List<String> roles) {
         final Date now = new Date();
-        final Date exp = Date.from(Instant.now().plus(Duration.ofHours(5)));
+        final Date exp = Date.from(Instant.now().plus(Duration.ofMinutes(3)));
 
         return Jwts.builder()
                 .subject(subject)

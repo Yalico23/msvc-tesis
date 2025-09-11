@@ -76,18 +76,4 @@ public class GlobalControllerAdvice {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
-    // Falla
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler({io.jsonwebtoken.ExpiredJwtException.class,
-            io.jsonwebtoken.JwtException.class,
-            io.jsonwebtoken.MalformedJwtException.class})
-    public ErrorResponse handleJwtException(Exception ex) {
-        return ErrorResponse.builder()
-                .code("Unauthorized 401")
-                .message("Invalid or expired token")
-                .details(List.of("El token JWT es inválido o ha expirado"))
-                .timestamp(LocalDateTime.now())
-                .build();
-    }
-
 }
