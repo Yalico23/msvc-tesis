@@ -10,6 +10,11 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -41,11 +46,38 @@ public class SecurityConfiguration {
 
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeExchange(exchanges -> exchanges.pathMatchers(
                                 SWAGGER_WHITELIST).permitAll()
-                                .anyExchange().authenticated()
+                        .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Orígenes permitidos (ajusta según tu frontend)
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Para desarrollo
+        // Para producción, especifica los dominios exactos:
+        // configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://tu-dominio.com"));
+
+        // Métodos HTTP permitidos
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        // Headers permitidos
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        // Permitir credenciales (cookies, authorization headers, etc.)
+        configuration.setAllowCredentials(true);
+
+        // Tiempo de cache para preflight requests
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }

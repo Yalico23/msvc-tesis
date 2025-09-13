@@ -1,8 +1,0 @@
-spring:
-  application:
-    name: msvc-tesis
-
-  data:
-    mongodb:
-      uri: ${DB_URL}
-      database: ${DB_NAME}

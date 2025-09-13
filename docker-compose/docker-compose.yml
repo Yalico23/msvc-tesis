@@ -5,6 +5,9 @@ services:
     ports:
       - "8081:8080"
     restart: always
+    environment:
+      - DB_URL=mongodb+srv://jeanpiero2301:yalico23@cluster0.hoxgwcw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - DB_NAME=tesis
     networks:
       - springcloud
 
