@@ -12,7 +12,7 @@ public class ListInterviewUseCaseImpl implements ListInterviewUseCase {
     private final InterviewRepositoryPort repositoryPort;
 
     @Override
-    public Flux<Interview> listInterviewsByUserId(String userId) {
-        return repositoryPort.findAllByUserId(userId);
+    public Flux<Interview> listInterviews() {
+        return repositoryPort.findAll();
     }
 }

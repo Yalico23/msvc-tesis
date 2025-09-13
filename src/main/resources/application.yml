@@ -2,10 +2,8 @@ spring:
   application:
     name: msvc-tesis
 
-  data:
-    mongodb:
-      uri: ${DB_URL:mongodb://localhost:27017}
-      database: ${DB_NAME:msvc_tesis}
+  profiles:
+    active: dev
 
 springdoc:
   api-docs:

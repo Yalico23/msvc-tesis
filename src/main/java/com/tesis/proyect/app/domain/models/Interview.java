@@ -16,6 +16,5 @@ public class Interview {
     private String description;
     private LocalDate createdAt;
     private Boolean active;
-    private String userId; // ID del usuario que creó la entrevista
     private List<Question> questions;
 }

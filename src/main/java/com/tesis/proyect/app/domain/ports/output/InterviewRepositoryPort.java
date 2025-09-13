@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface InterviewRepositoryPort {
     Mono<Interview> save (Interview interview);
-    Flux<Interview> findAllByUserId(String userId);
+    Flux<Interview> findAll();
 }

@@ -22,8 +22,8 @@ public class InterviewEntityAdapter implements InterviewRepositoryPort {
     }
 
     @Override
-    public Flux<Interview> findAllByUserId(String userId) {
-        return interviewEntityRepository.findAllByUserId(userId).
-                map(mapper::toModel);
+    public Flux<Interview> findAll() {
+        return interviewEntityRepository.findAll()
+                .map(mapper::toModel);
     }
 }

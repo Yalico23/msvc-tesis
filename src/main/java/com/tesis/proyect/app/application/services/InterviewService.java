@@ -23,19 +23,19 @@ public class InterviewService implements
 
     @Transactional
     @Override
-    public Mono<Interview> saveInterview(Interview interview, String userId) {
-        return saveInterviewUseCase.saveInterview(interview, userId);
+    public Mono<Interview> saveInterview(Interview interview) {
+        return saveInterviewUseCase.saveInterview(interview);
     }
 
     @Transactional
     @Override
-    public Mono<Interview> updateInterview(Interview interview, String userId) {
-        return saveInterviewUseCase.updateInterview(interview,userId);
+    public Mono<Interview> updateInterview(Interview interview) {
+        return saveInterviewUseCase.updateInterview(interview);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Flux<Interview> listInterviewsByUserId(String userId) {
-        return listInterviewUseCase.listInterviewsByUserId(userId);
+    public Flux<Interview> listInterviews() {
+        return listInterviewUseCase.listInterviews();
     }
 }

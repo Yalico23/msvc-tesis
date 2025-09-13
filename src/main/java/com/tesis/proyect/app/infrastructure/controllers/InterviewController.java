@@ -25,26 +25,23 @@ public class InterviewController {
     @PreAuthorize("hasRole('RECLUTADOR')")
     @PostMapping("/create")
     public Mono<ResponseEntity<Interview>> createInterview
-            (@Valid @RequestBody CreateInterviewRequest createInterviewRequest,
-             @RequestParam("userId") String userId) {
-        return interviewService.saveInterview(interviewMapper.toModel(createInterviewRequest), userId)
+            (@Valid @RequestBody CreateInterviewRequest createInterviewRequest) {
+        return interviewService.saveInterview(interviewMapper.toModel(createInterviewRequest))
                 .map(ResponseEntity::ok);
     }
 
     @PreAuthorize("hasRole('RECLUTADOR')")
     @PutMapping("/update")
     public Mono<ResponseEntity<Interview>> updateInterview
-            (@Valid @RequestBody UpdateInterviewRequest updateInterviewRequest,
-             @RequestParam("userId") String userId) {
-        return interviewService.updateInterview(interviewMapper.toModel(updateInterviewRequest),userId)
+            (@Valid @RequestBody UpdateInterviewRequest updateInterviewRequest) {
+        return interviewService.updateInterview(interviewMapper.toModel(updateInterviewRequest))
                 .map(ResponseEntity::ok);
     }
 
     @PreAuthorize("hasRole('RECLUTADOR')")
-    @GetMapping("/listInterviewByUserId")
-    public Mono<ResponseEntity<Flux<Interview>>> findAllInterviewByUserId(
-            @RequestParam("userId") String userId) {
-        Flux<Interview> interviews = interviewService.listInterviewsByUserId(userId);
+    @GetMapping("/listInterviews")
+    public Mono<ResponseEntity<Flux<Interview>>> findAllInterviews() {
+        Flux<Interview> interviews = interviewService.listInterviews();
         return Mono.just(
                 ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)

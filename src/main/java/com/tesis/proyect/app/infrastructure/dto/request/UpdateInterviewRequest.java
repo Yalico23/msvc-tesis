@@ -20,6 +20,8 @@ public class UpdateInterviewRequest {
     private String title;
     @NotBlank(message = "La descripción no puede estar vacía")
     private String description;
+    @NotNull(message = "El estado de la entrevista no puede ser nulo")
+    private Boolean active;
     @NotNull(message = "Debe tener al menos una pregunta")
     private List<CreateInterviewRequest.QuestionRequest> questions;
 

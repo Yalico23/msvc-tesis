@@ -22,6 +22,5 @@ public class InterviewEntity {
     private String description;
     private LocalDate createdAt;
     private Boolean active;
-    private String userId;
     private List<QuestionEntity> questions;
 }

@@ -13,24 +13,18 @@ public class SaveInterviewUseCaseImpl implements SaveInterviewUseCase {
     private final InterviewRepositoryPort interviewRepositoryPort;
 
     @Override
-    public Mono<Interview> saveInterview(Interview interview, String userId) {
+    public Mono<Interview> saveInterview(Interview interview) {
         return Mono.just(interview)
                 .map(i -> {
-                    i.setActive(true);
                     i.setCreatedAt(LocalDate.now());
-                    i.setUserId(userId);
                     return i;
                 })
                 .flatMap(interviewRepositoryPort::save);
     }
 
     @Override
-    public Mono<Interview> updateInterview(Interview interview, String userId) {
+    public Mono<Interview> updateInterview(Interview interview) {
         return Mono.just(interview)
-                .map(i -> {
-                    i.setUserId(userId);
-                    return i;
-                })
                 .flatMap(interviewRepositoryPort::save);
     }
 }
