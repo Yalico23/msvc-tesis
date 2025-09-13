@@ -1,13 +1,11 @@
 package com.tesis.proyect.app.domain.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +16,6 @@ public class Interview {
     private String description;
     private LocalDate createdAt;
     private Boolean active;
-    private UserRef user;
+    private String userId; // ID del usuario que creó la entrevista
     private List<Question> questions;
-    private List<UserInterview> userInterviews;
 }

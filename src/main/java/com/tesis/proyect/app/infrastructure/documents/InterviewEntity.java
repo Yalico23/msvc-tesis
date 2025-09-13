@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -23,7 +22,6 @@ public class InterviewEntity {
     private String description;
     private LocalDate createdAt;
     private Boolean active;
-    private UserEntity user;
-    private List<UserInterviewEntity> userInterviews;
+    private String userId;
     private List<QuestionEntity> questions;
 }

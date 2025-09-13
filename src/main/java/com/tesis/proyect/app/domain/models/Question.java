@@ -10,9 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Question {
-    private String id;
     private String text;
     private Integer points;
     private Integer time;
-    private InterviewRef interview;
 }

@@ -3,6 +3,7 @@ package com.tesis.proyect.app.infrastructure.controllers;
 import com.tesis.proyect.app.domain.exceptions.InvalidCredentialsException;
 import com.tesis.proyect.app.domain.exceptions.JwtAuthenticationException;
 import com.tesis.proyect.app.domain.exceptions.NoActiveUserException;
+import com.tesis.proyect.app.domain.exceptions.UserNotFoundException;
 import com.tesis.proyect.app.domain.models.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -40,6 +41,17 @@ public class GlobalControllerAdvice {
                                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                                 .toList()
                 )
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ErrorResponse handleUserNotFound(UserNotFoundException ex) {
+        return ErrorResponse.builder()
+                .code("NotFound 404")
+                .message(ex.getMessage())
+                .details(List.of("No se encontró un usuario con el email proporcionado"))
                 .timestamp(LocalDateTime.now())
                 .build();
     }

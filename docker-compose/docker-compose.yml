@@ -1,0 +1,13 @@
+services:
+  msvc-tesis:
+    container_name: msvc-tesis
+    image: msvc-tesis:latest
+    ports:
+      - "8081:8080"
+    restart: always
+    networks:
+      - springcloud
+
+networks:
+  springcloud:
+  

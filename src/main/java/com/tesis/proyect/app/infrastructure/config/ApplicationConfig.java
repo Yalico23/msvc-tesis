@@ -1,12 +1,17 @@
 package com.tesis.proyect.app.infrastructure.config;
 
+import com.tesis.proyect.app.application.services.InterviewService;
 import com.tesis.proyect.app.application.services.RolService;
 import com.tesis.proyect.app.application.services.UserService;
+import com.tesis.proyect.app.application.usecases.interview.ListInterviewUseCaseImpl;
+import com.tesis.proyect.app.application.usecases.interview.SaveInterviewUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.rol.CreateRolUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.CreateUserUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.FindUserUSerCaseImpl;
+import com.tesis.proyect.app.domain.ports.output.InterviewRepositoryPort;
 import com.tesis.proyect.app.domain.ports.output.RolRepositoryPort;
 import com.tesis.proyect.app.domain.ports.output.UserRepositoryPort;
+import com.tesis.proyect.app.infrastructure.repositories.InterviewEntityAdapter;
 import com.tesis.proyect.app.infrastructure.repositories.RolEntityAdapter;
 import com.tesis.proyect.app.infrastructure.repositories.UserEntityAdapter;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +48,19 @@ public class ApplicationConfig {
     public RolService rolService(RolRepositoryPort rolRepositoryPort) {
         return new RolService(
                 new CreateRolUseCaseImpl(rolRepositoryPort)
+        );
+    }
+
+    @Bean
+    public InterviewRepositoryPort interviewRepositoryPort(InterviewEntityAdapter interviewEntityAdapter){
+        return interviewEntityAdapter;
+    }
+
+    @Bean
+    public InterviewService interviewService(InterviewRepositoryPort interviewRepositoryPort){
+        return new InterviewService(
+                new SaveInterviewUseCaseImpl(interviewRepositoryPort),
+                new ListInterviewUseCaseImpl(interviewRepositoryPort)
         );
     }
 

@@ -1,5 +1,6 @@
 package com.tesis.proyect.app.application.usecases.user;
 
+import com.tesis.proyect.app.domain.exceptions.UserNotFoundException;
 import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.ports.input.user.FindUserUSerCase;
 import com.tesis.proyect.app.domain.ports.output.UserRepositoryPort;
@@ -13,6 +14,7 @@ public class FindUserUSerCaseImpl implements FindUserUSerCase {
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return userRepositoryPort.findByEmail(email);
+        return userRepositoryPort.findByEmail(email).
+                switchIfEmpty(Mono.error(new UserNotFoundException("User with email " + email + " not found")));
     }
 }

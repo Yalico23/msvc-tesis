@@ -31,7 +31,7 @@ public class SecurityConfiguration {
             "/v3/api-docs/**",       // JSON de la API
             "/swagger-resources/**", // recursos swagger
             "/webjars/**",           // estáticos
-            "/auth/**"               // endpoints de autenticación
+            "/auth/**",               // endpoints de autenticación
     };
 
     @Bean

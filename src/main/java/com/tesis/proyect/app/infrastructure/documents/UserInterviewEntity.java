@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -21,6 +20,6 @@ public class UserInterviewEntity {
     private Integer score;
     private String state;
     private LocalDate date;
-    private UserEntity user;
-    private InterviewEntity interview;
+    private String userId; // quien realiza la entrevista
+    private String interviewId; // entrevista realizada
 }

@@ -25,12 +25,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public Mono<ResponseEntity<LoginUserResponse>> login(@Valid @RequestBody LoginUserRequest loginUserRequest) {
-        log.info("Intentando login con email={}", loginUserRequest.getEmail());
 
         return this.authService.authenticate(loginUserRequest.getEmail(), loginUserRequest.getPassword())
-                .doOnNext(jwt -> log.info("JWT generado correctamente: {}", jwt))
                 .flatMap(jwt -> userService.findByEmail(loginUserRequest.getEmail())
-                        .doOnNext(user -> log.info("Usuario encontrado en BD: {}", user.getEmail()))
                         .map(user -> {
                             String roleName = user.getRole() != null ? user.getRole().getName() : null;
 

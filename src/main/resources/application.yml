@@ -4,7 +4,8 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://localhost:27017/msvc_tesis
+      uri: ${DB_URL:mongodb://localhost:27017}
+      database: ${DB_NAME:msvc_tesis}
 
 springdoc:
   api-docs:

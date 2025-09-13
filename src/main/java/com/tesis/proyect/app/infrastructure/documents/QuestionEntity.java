@@ -19,5 +19,4 @@ public class QuestionEntity {
     private String text;
     private Integer points;
     private Integer time;
-    private InterviewEntity interview;
 }

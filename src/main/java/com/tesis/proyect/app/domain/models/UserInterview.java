@@ -16,6 +16,6 @@ public class UserInterview {
     private Integer score;
     private String state;
     private LocalDate date;
-    private UserRef user;
-    private InterviewRef interview;
+    private String userId; // quien realiza la entrevista
+    private String interviewId; // entrevista realizada
 }
