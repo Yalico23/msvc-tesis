@@ -1,5 +1,6 @@
 package com.tesis.proyect.app.infrastructure.documents;
 
+import com.tesis.proyect.app.domain.models.UserInterview;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,4 +24,15 @@ public class UserInterviewEntity {
     private LocalDate date;
     private String userId; // quien realiza la entrevista
     private String interviewId; // entrevista realizada
+    private String s3KeyPath; // path en s3
+    private List<Answer> answers;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Answer{
+        private String questionText;
+        private String responseText;
+    }
 }

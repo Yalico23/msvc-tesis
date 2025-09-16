@@ -7,6 +7,11 @@ spring:
       uri: ${DB_URL:mongodb://localhost:27017}
       database: ${DB_NAME:msvc_tesis}
 
+  webflux:
+    multipart:
+      max-disk-usage-per-part: 20MB
+      max-in-memory-size: 20MB
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -16,3 +21,24 @@ springdoc:
     url: /v3/api-docs
     disable-swagger-default-url: true
     operationsSorter: method
+
+logging:
+  level:
+    software:
+      amazon:
+        awssdk: DEBUG
+
+aws:
+  access-key-id: ${AWS_ACCESS_KEY_ID}
+  secret-access-key: ${AWS_SECRET_ACCESS_KEY}
+  region: us-east-2
+  s3:
+    bucket-name: tesis-entrevista
+
+openai:
+  ia:
+    api-key: ${OPENAI_API_KEY}
+    model: google/gemma-3-12b-it:free
+    url: https://openrouter.ai/api/v1/chat/completions
+  whisper:
+    url: http://localhost:9000/asr?task=transcribe&language=es

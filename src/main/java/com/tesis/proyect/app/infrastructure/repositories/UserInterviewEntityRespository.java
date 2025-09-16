@@ -1,0 +1,11 @@
+package com.tesis.proyect.app.infrastructure.repositories;
+
+import com.tesis.proyect.app.infrastructure.documents.UserInterviewEntity;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
+
+@Repository
+public interface UserInterviewEntityRespository extends ReactiveMongoRepository<UserInterviewEntity, String> {
+    Mono<UserInterviewEntity> save (UserInterviewEntity userInterview);
+}
