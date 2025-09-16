@@ -7,5 +7,4 @@ import reactor.core.publisher.Mono;
 
 public interface SaveUserInterviewUseCase {
     Mono<UserInterview> saveUserInterview (Flux<FilePart> audios, FilePart fullVideo, String userId, String userInterview);
-    Mono<String> devolverPropmt(String prompt);
 }

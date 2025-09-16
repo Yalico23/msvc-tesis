@@ -1,5 +1,7 @@
 package com.tesis.proyect.app.application.usecases.userinterview;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.domain.ports.input.userinterview.SaveUserInterviewUseCase;
 import com.tesis.proyect.app.domain.ports.output.AwsExternalServicePort;
@@ -42,15 +44,21 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                     }
 
                     return getAnswers(audios) // procesar audios
+                            .flatMap(this::evaluateAnswerWithIA)
                             .collectList()
                             .flatMap(answers -> {
+                                // Calcular promedio de puntaje
+                                int score = answers.stream()
+                                        .mapToInt(UserInterview.Answer::getPoints)
+                                        .sum() / answers.size();
+
                                 UserInterview userInterview = new UserInterview();
                                 userInterview.setS3KeyPath(videoKey);
                                 userInterview.setDate(LocalDate.now());
                                 userInterview.setUserId(userId);
                                 userInterview.setInterviewId(interviewId);
                                 userInterview.setAnswers(answers);
-                                userInterview.setScore(0);
+                                userInterview.setScore(score);
                                 userInterview.setState(EstadoEntrevista.PENDIENTE.name());
 
                                 return interviewRepositoryPort.save(userInterview);
@@ -58,10 +66,62 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                 });
     }
 
-    @Override
-    public Mono<String> devolverPropmt(String prompt) {
-        return iaExternalServicePort.getIaServiceResponse(prompt);
+    private Mono<String> makePrompt(String question, String answer) {
+        String prompt = """
+                Eres un experto de recursos humanos que evaluará una respuesta en una entrevista.
+                Muy importante al momento de calificar si hay palabras sin sentido es por un tema de audio a texto puede que por ello encuentres fallas ortográficas o palabras que no tienen sentido. Evalúa lo que se llegue a entender
+                La pregunta es: "%s"
+                La respuesta dada es: "%s"
+                
+                Devuelve SOLO un JSON válido con los campos:
+                {
+                  "score": <número entre 0 y 10>,
+                  "justification": "<máx 2 líneas explicando el puntaje>"
+                }
+                """
+                .formatted(question, answer);
+        return Mono.just(prompt);
     }
+
+    private String sanitizeJson(String rawResponse) {
+        if (rawResponse == null) return "{}";
+
+        // Elimina bloques tipo ```json ... ```
+        String cleaned = rawResponse.replaceAll("(?s)```json", "")
+                .replaceAll("(?s)```", "")
+                .trim();
+
+        // A veces la IA devuelve "json\n{...}" → eliminamos prefijo
+        if (cleaned.startsWith("json")) {
+            cleaned = cleaned.substring(4).trim();
+        }
+
+        return cleaned;
+    }
+
+
+    private Mono<UserInterview.Answer> evaluateAnswerWithIA(UserInterview.Answer answer) {
+        return makePrompt(answer.getQuestionText(), answer.getResponseText())
+                .flatMap(iaExternalServicePort::getIaServiceResponse)
+                .map(this::sanitizeJson) // 👈 limpiar la respuesta
+                .flatMap(rawResponse -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode node = mapper.readTree(rawResponse);
+
+                        if (node.has("score") && node.has("justification")) {
+                            answer.setPoints(node.get("score").asInt());
+                            answer.setDescription(node.get("justification").asText());
+                            return Mono.just(answer);
+                        } else {
+                            return Mono.error(new RuntimeException("Respuesta IA inválida: " + rawResponse));
+                        }
+                    } catch (Exception e) {
+                        return Mono.error(new RuntimeException("Error parseando respuesta IA: " + rawResponse, e));
+                    }
+                });
+    }
+
 
     private Flux<UserInterview.Answer> getAnswers(Flux<FilePart> audios) {
         return audios.flatMap(audio ->
@@ -71,7 +131,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                             String filenameWithoutExt = originalName.contains(".")
                                     ? originalName.substring(0, originalName.lastIndexOf('.'))
                                     : originalName;
-                            return new UserInterview.Answer(filenameWithoutExt, text);
+                            return new UserInterview.Answer(filenameWithoutExt, text, null, null);
                         })
         );
     }

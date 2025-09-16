@@ -34,5 +34,7 @@ public class UserInterviewEntity {
     public static class Answer{
         private String questionText;
         private String responseText;
+        private Integer points;
+        private String description;
     }
 }

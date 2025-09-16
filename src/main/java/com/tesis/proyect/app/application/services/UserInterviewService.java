@@ -22,9 +22,4 @@ public class UserInterviewService implements SaveUserInterviewUseCase {
     public Mono<UserInterview> saveUserInterview(Flux<FilePart> audios, FilePart fullVideo, String userId, String userInterview) {
         return saveUserInterviewUseCase.saveUserInterview(audios,fullVideo,userId,userInterview);
     }
-
-    @Override
-    public Mono<String> devolverPropmt(String prompt) {
-        return saveUserInterviewUseCase.devolverPropmt(prompt);
-    }
 }

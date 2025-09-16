@@ -6,10 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,11 +25,5 @@ public class UserInterviewController {
              @RequestPart("userId") String userId,
              @RequestPart("interviewId") String interviewId) {
         return userInterviewService.saveUserInterview(audios, video, userId, interviewId);
-    }
-
-    @PreAuthorize("hasRole('RECLUTADOR')")
-    @PostMapping("/iaTest")
-    public Mono<String> iaTest(@RequestPart("text") String text) {
-        return userInterviewService.devolverPropmt(text);
     }
 }
