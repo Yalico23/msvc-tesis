@@ -5,6 +5,7 @@ import com.tesis.proyect.app.domain.ports.output.UserRepositoryPort;
 import com.tesis.proyect.app.infrastructure.mappers.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -34,5 +35,11 @@ public class UserEntityAdapter implements UserRepositoryPort {
     @Override
     public Mono<Boolean> existByEmail(String email) {
         return repository.findByEmail(email).hasElement();
+    }
+
+    @Override
+    public Flux<User> findByRoleName(String roleName) {
+        return repository.findAllByRoleName(roleName)
+                .map(mapper::toModel);
     }
 }

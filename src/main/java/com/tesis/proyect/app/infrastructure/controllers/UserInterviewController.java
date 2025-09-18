@@ -2,8 +2,11 @@ package com.tesis.proyect.app.infrastructure.controllers;
 
 import com.tesis.proyect.app.application.services.UserInterviewService;
 import com.tesis.proyect.app.domain.models.UserInterview;
+import com.tesis.proyect.app.infrastructure.dto.response.ListUserInterviewResponse;
+import com.tesis.proyect.app.infrastructure.mappers.UserInterviewMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ import reactor.core.publisher.Mono;
 public class UserInterviewController {
 
     private final UserInterviewService userInterviewService;
+    private final UserInterviewMapper mapper;
 
     @PreAuthorize("hasRole('RECLUTADOR')")
     @PostMapping(value = "/finishInterview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -25,5 +29,17 @@ public class UserInterviewController {
              @RequestPart("userId") String userId,
              @RequestPart("interviewId") String interviewId) {
         return userInterviewService.saveUserInterview(audios, video, userId, interviewId);
+    }
+
+    @PreAuthorize("hasRole('RECLUTADOR')")
+    @GetMapping("/findAll")
+    public Mono<ResponseEntity<Flux<ListUserInterviewResponse>>> findAllByInterviewId
+            (@RequestParam("interviewId") String interviewId) {
+        return Mono.just(
+                ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(userInterviewService.listAllUserInterviews(interviewId)
+                                .map(mapper::toListResponse))
+        );
     }
 }

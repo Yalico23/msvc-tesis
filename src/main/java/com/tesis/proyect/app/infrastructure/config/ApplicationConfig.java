@@ -9,6 +9,7 @@ import com.tesis.proyect.app.application.usecases.interview.SaveInterviewUseCase
 import com.tesis.proyect.app.application.usecases.rol.CreateRolUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.CreateUserUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.FindUserUSerCaseImpl;
+import com.tesis.proyect.app.application.usecases.userinterview.ListUserInterviewUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.userinterview.SaveUserInterviewUseCaseImpl;
 import com.tesis.proyect.app.domain.ports.output.*;
 import com.tesis.proyect.app.infrastructure.adapters.AwsExternalServiceAdapter;
@@ -91,7 +92,8 @@ public class ApplicationConfig {
                         (whisperExternalServicePort,
                                 userInterviewRepositoryPort,
                                 awsExternalServicePort,
-                                iaExternalServicePort)
+                                iaExternalServicePort),
+                new ListUserInterviewUseCaseImpl(userInterviewRepositoryPort)
         );
     }
 

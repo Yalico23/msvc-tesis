@@ -50,7 +50,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                                 // Calcular promedio de puntaje
                                 int score = answers.stream()
                                         .mapToInt(UserInterview.Answer::getPoints)
-                                        .sum() / answers.size();
+                                        .sum();
 
                                 UserInterview userInterview = new UserInterview();
                                 userInterview.setS3KeyPath(videoKey);
@@ -86,15 +86,19 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
     private String sanitizeJson(String rawResponse) {
         if (rawResponse == null) return "{}";
 
-        // Elimina bloques tipo ```json ... ```
         String cleaned = rawResponse.replaceAll("(?s)```json", "")
                 .replaceAll("(?s)```", "")
                 .trim();
 
-        // A veces la IA devuelve "json\n{...}" → eliminamos prefijo
         if (cleaned.startsWith("json")) {
             cleaned = cleaned.substring(4).trim();
         }
+
+        // Escape de comillas dobles no escapadas dentro de justification u otros campos
+        // Básicamente: si hay una comilla dentro de un valor JSON, la escapamos
+        cleaned = cleaned.replaceAll(":(\\s*)\"([^\"]*?)\"(\\s*[},])",
+                        ": \"$2\"$3") // deja pasar el valor correcto
+                .replaceAll("([^\\\\])\"([^\":{}]+)\"", "$1\\\"$2\\\""); // escapa las internas
 
         return cleaned;
     }

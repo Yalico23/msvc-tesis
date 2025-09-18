@@ -5,6 +5,7 @@ import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.ports.input.user.FindUserUSerCase;
 import com.tesis.proyect.app.domain.ports.output.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -16,5 +17,10 @@ public class FindUserUSerCaseImpl implements FindUserUSerCase {
     public Mono<User> findByEmail(String email) {
         return userRepositoryPort.findByEmail(email).
                 switchIfEmpty(Mono.error(new UserNotFoundException("User with email " + email + " not found")));
+    }
+
+    @Override
+    public Flux<User> findByRoleName(String roleName) {
+        return userRepositoryPort.findByRoleName(roleName);
     }
 }

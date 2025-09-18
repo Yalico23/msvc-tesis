@@ -41,4 +41,5 @@ openai:
     model: google/gemma-3-12b-it:free
     url: https://openrouter.ai/api/v1/chat/completions
   whisper:
-    url: http://localhost:9000/asr?task=transcribe&language=es
+    url: ${WHISPER_URL:http://localhost:9000/asr?task=transcribe&language=es}
+

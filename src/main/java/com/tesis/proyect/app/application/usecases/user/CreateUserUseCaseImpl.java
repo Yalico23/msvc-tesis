@@ -34,7 +34,7 @@ public class CreateUserUseCaseImpl implements CreateUserUseCase {
                                         user.setRole(role);
                                         user.setCreationDate(LocalDate.now());
                                         user.setToken(token);
-                                        user.setActive(false);
+                                        user.setActive(true);
                                         user.setPassword(passwordEncoder.encode(user.getPassword()));
                                         return user;
                                     })

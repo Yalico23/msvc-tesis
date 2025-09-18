@@ -5,6 +5,7 @@ import com.tesis.proyect.app.domain.ports.output.UserInterviewRepositoryPort;
 import com.tesis.proyect.app.infrastructure.mappers.UserInterviewMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -18,5 +19,17 @@ public class UserInterviewEntityAdapter implements UserInterviewRepositoryPort {
     public Mono<UserInterview> save(UserInterview userInterview) {
         return userInterviewEntityRespository.save(mapper.toEntity(userInterview)).
                 map(mapper::toDomain);
+    }
+
+    @Override
+    public Flux<UserInterview> findAll() {
+        return userInterviewEntityRespository.findAll()
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Flux<UserInterview> findAllByInterviewId(String interviewId) {
+        return userInterviewEntityRespository.findAllByInterviewId(interviewId)
+                .map(mapper::toDomain);
     }
 }
