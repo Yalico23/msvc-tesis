@@ -9,6 +9,7 @@ import com.tesis.proyect.app.application.usecases.interview.SaveInterviewUseCase
 import com.tesis.proyect.app.application.usecases.rol.CreateRolUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.CreateUserUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.user.FindUserUSerCaseImpl;
+import com.tesis.proyect.app.application.usecases.user.InterviewAsignedUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.userinterview.ListUserInterviewUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.userinterview.SaveUserInterviewUseCaseImpl;
 import com.tesis.proyect.app.domain.ports.output.*;
@@ -47,7 +48,8 @@ public class ApplicationConfig {
     public UserService userService(UserRepositoryPort userRepositoryPort, RolRepositoryPort rolRepositoryPort, PasswordEncoder passwordEncoder) {
         return new UserService(
                 new CreateUserUseCaseImpl(userRepositoryPort, rolRepositoryPort, passwordEncoder),
-                new FindUserUSerCaseImpl(userRepositoryPort)
+                new FindUserUSerCaseImpl(userRepositoryPort),
+                new InterviewAsignedUseCaseImpl(userRepositoryPort)
         );
     }
 

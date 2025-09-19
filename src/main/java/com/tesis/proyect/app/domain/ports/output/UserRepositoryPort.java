@@ -10,4 +10,5 @@ public interface UserRepositoryPort {
     Mono<User> findByEmail(String email);
     Mono<Boolean> existByEmail(String email);
     Flux<User> findByRoleName(String roleName);
+    Mono<User> findById(String id);
 }

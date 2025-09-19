@@ -42,4 +42,10 @@ public class UserEntityAdapter implements UserRepositoryPort {
         return repository.findAllByRoleName(roleName)
                 .map(mapper::toModel);
     }
+
+    @Override
+    public Mono<User> findById(String id) {
+        return repository.findById(id)
+                .map(mapper::toModel);
+    }
 }

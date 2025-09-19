@@ -20,4 +20,5 @@ public class User {
     private Boolean active;
     private Rol role;
     private String rolName;
+    private String interviewAsignedId;
 }

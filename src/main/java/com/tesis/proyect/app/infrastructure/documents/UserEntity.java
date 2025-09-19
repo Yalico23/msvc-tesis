@@ -24,4 +24,5 @@ public class UserEntity {
     private LocalDate creationDate;
     private Boolean active;
     private RolEntity role;
+    private String interviewAsignedId;
 }
