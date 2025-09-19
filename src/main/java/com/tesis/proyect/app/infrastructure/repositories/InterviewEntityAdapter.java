@@ -26,4 +26,10 @@ public class InterviewEntityAdapter implements InterviewRepositoryPort {
         return interviewEntityRepository.findAll()
                 .map(mapper::toModel);
     }
+
+    @Override
+    public Mono<Interview> findById(String id) {
+        return interviewEntityRepository.findById(id)
+                .map(mapper::toModel);
+    }
 }

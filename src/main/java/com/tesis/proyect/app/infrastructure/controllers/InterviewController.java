@@ -48,4 +48,14 @@ public class InterviewController {
                         .body(interviews)
         );
     }
+
+    @PreAuthorize("hasRole('PRACTICANTE')")
+    @GetMapping("/listInterviewByPracticanterId")
+    public Mono<ResponseEntity<Interview>> findByUserId
+            (@RequestParam("practicanteId") String practicanteId) {
+        return interviewService.findByUserIdAssigned(practicanteId)
+                .map(interview -> ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(interview));
+    }
 }

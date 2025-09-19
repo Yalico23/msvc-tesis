@@ -39,7 +39,7 @@ public class UserController {
                 );
     }
 
-    @PreAuthorize("hasAnyRole('RECLUTADOR','PARTICIPANTE')")
+    @PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
     @GetMapping("/findByEmail")
     public Mono<ResponseEntity<FindUserByEmailResponse>> getByEmail(@RequestParam("email") String email) {
         return userService.findByEmail(email)

@@ -38,4 +38,10 @@ public class InterviewService implements
     public Flux<Interview> listInterviews() {
         return listInterviewUseCase.listInterviews();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Mono<Interview> findByUserIdAssigned(String userIdAssigned) {
+        return listInterviewUseCase.findByUserIdAssigned(userIdAssigned);
+    }
 }
