@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,7 +21,7 @@ public class InterviewController {
     private final InterviewService interviewService;
     private final InterviewMapper interviewMapper;
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    //@PreAuthorize("hasRole('RECLUTADOR')")
     @PostMapping("/create")
     public Mono<ResponseEntity<Interview>> createInterview
             (@Valid @RequestBody CreateInterviewRequest createInterviewRequest) {
@@ -30,7 +29,7 @@ public class InterviewController {
                 .map(ResponseEntity::ok);
     }
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    //@PreAuthorize("hasRole('RECLUTADOR')")
     @PutMapping("/update")
     public Mono<ResponseEntity<Interview>> updateInterview
             (@Valid @RequestBody UpdateInterviewRequest updateInterviewRequest) {
@@ -38,7 +37,7 @@ public class InterviewController {
                 .map(ResponseEntity::ok);
     }
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    //@PreAuthorize("hasRole('RECLUTADOR')")
     @GetMapping("/listInterviews")
     public Mono<ResponseEntity<Flux<Interview>>> findAllInterviews() {
         Flux<Interview> interviews = interviewService.listInterviews();
@@ -49,7 +48,7 @@ public class InterviewController {
         );
     }
 
-    @PreAuthorize("hasRole('PRACTICANTE')")
+    //@PreAuthorize("hasRole('PRACTICANTE')")
     @GetMapping("/listInterviewPracticante")
     public Mono<ResponseEntity<Interview>> findByUserId
             (@RequestParam("practicanteId") String practicanteId) {

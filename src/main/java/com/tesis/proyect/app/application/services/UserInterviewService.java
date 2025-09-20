@@ -22,9 +22,10 @@ public class UserInterviewService implements SaveUserInterviewUseCase, ListUserI
 
     @Transactional
     @Override
-    public Mono<UserInterview> saveUserInterview(Flux<FilePart> audios, FilePart fullVideo, String userId, String userInterview) {
+    public Mono<UserInterview> saveUserInterview
+            (Flux<FilePart> audios, FilePart fullVideo, String userId, String userInterview, String durationMinutes) {
         return saveUserInterviewUseCase.saveUserInterview
-                (audios,fullVideo,userId,userInterview);
+                (audios,fullVideo,userId,userInterview,durationMinutes);
     }
 
     @Transactional(readOnly = true)

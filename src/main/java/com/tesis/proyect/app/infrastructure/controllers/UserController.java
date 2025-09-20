@@ -29,7 +29,7 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','RECLUTADOR')")
+    //@PreAuthorize("hasAnyRole('ADMIN','RECLUTADOR')")
     @PostMapping("/create")
     public Mono<ResponseEntity<User>> createUser(@Valid @RequestBody CreateUserRequest request) {
         return userService.createUser(userMapper.toModel(request))
@@ -39,7 +39,7 @@ public class UserController {
                 );
     }
 
-    @PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
+    //@PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
     @GetMapping("/findByEmail")
     public Mono<ResponseEntity<FindUserByEmailResponse>> getByEmail(@RequestParam("email") String email) {
         return userService.findByEmail(email)
@@ -48,7 +48,7 @@ public class UserController {
                         .body(userMapper.toResponse(user)));
     }
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    //@PreAuthorize("hasRole('RECLUTADOR')")
     @GetMapping("/listPracticantes")
     public Mono<ResponseEntity<Flux<ListPracticantesResponse>>> listPracticantes() {
         Flux<ListPracticantesResponse> body = userService.findByRoleName("ROLE_PRACTICANTE")
@@ -59,7 +59,7 @@ public class UserController {
                 .body(body));
     }
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    //@PreAuthorize("hasRole('RECLUTADOR')")
     @PostMapping("/assignInterviewToPracticante")
     public Mono<ResponseEntity<User>> assignInterviewToPracticante
             (@RequestParam("userId") String userId,

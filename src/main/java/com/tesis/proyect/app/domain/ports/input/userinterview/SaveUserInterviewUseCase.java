@@ -10,5 +10,6 @@ public interface SaveUserInterviewUseCase {
             (Flux<FilePart> audios,
              FilePart fullVideo,
              String userId,
-             String userInterview);
+             String userInterview,
+             String durationMinutes);
 }

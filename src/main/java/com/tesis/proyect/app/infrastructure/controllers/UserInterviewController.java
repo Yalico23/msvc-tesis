@@ -21,7 +21,7 @@ public class UserInterviewController {
     private final UserInterviewService userInterviewService;
     private final UserInterviewMapper mapper;
 
-    @PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
+    //@PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
     @PostMapping(value = "/finishInterview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<UserInterview> finishInterview
             (@RequestPart("audios") Flux<FilePart> audios,
@@ -32,7 +32,7 @@ public class UserInterviewController {
         return userInterviewService.saveUserInterview(audios, video, userId, interviewId, durationMinutes);
     }
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    //@PreAuthorize("hasRole('RECLUTADOR')")
     @GetMapping("/findAll")
     public Mono<ResponseEntity<Flux<ListUserInterviewResponse>>> findAllByInterviewId
             (@RequestParam("interviewId") String interviewId) {

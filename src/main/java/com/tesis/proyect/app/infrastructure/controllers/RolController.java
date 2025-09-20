@@ -25,7 +25,7 @@ public class RolController {
         this.rolMapper = rolMapper;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','RECLUTADOR')")
+    //@PreAuthorize("hasAnyRole('ADMIN','RECLUTADOR')")
     @PostMapping("/crear")
     public ResponseEntity<Mono<Rol>> createTol(@Valid @RequestBody CreateRolRequest rol) {
         return ResponseEntity.ok(rolService.createRol(rolMapper.toModel(rol)));

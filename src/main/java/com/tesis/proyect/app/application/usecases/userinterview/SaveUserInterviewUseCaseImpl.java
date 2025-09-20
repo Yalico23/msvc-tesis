@@ -27,7 +27,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
 
     @Override
     public Mono<UserInterview> saveUserInterview
-            (Flux<FilePart> audios, FilePart fullVideo, String userId, String interviewId) {
+            (Flux<FilePart> audios, FilePart fullVideo, String userId, String interviewId, String durationMinutes) {
 
         String originalFilename = fullVideo.filename();
         String extension = "";
@@ -59,7 +59,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                                 userInterview.setInterviewId(interviewId);
                                 userInterview.setAnswers(answers);
                                 userInterview.setScore(score);
-                                userInterview.setDuration(null); // duración no implementada
+                                userInterview.setDuration(Integer.parseInt(durationMinutes));
                                 userInterview.setState(EstadoEntrevista.PENDIENTE.name());
 
                                 return interviewRepositoryPort.save(userInterview);
