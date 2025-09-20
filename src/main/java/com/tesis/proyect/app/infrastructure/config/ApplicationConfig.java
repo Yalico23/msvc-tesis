@@ -71,10 +71,14 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public InterviewService interviewService(InterviewRepositoryPort interviewRepositoryPort, UserRepositoryPort userRepositoryPort) {
+    public InterviewService interviewService
+            (InterviewRepositoryPort interviewRepositoryPort,
+             UserRepositoryPort userRepositoryPort,
+             UserInterviewRepositoryPort userInterviewRepositoryPort) {
         return new InterviewService(
                 new SaveInterviewUseCaseImpl(interviewRepositoryPort),
-                new ListInterviewUseCaseImpl(interviewRepositoryPort, userRepositoryPort)
+                new ListInterviewUseCaseImpl
+                        (interviewRepositoryPort, userRepositoryPort,userInterviewRepositoryPort)
         );
     }
 

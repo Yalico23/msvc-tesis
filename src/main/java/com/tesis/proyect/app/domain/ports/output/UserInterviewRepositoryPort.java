@@ -8,4 +8,5 @@ public interface UserInterviewRepositoryPort {
     Mono<UserInterview> save (UserInterview userInterview);
     Flux<UserInterview> findAll();
     Flux<UserInterview> findAllByInterviewId(String interviewId);
+    Mono<Boolean> existsByUserId(String userId);
 }

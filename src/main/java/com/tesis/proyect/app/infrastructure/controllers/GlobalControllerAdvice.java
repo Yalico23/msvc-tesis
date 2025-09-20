@@ -1,9 +1,6 @@
 package com.tesis.proyect.app.infrastructure.controllers;
 
-import com.tesis.proyect.app.domain.exceptions.InvalidCredentialsException;
-import com.tesis.proyect.app.domain.exceptions.JwtAuthenticationException;
-import com.tesis.proyect.app.domain.exceptions.NoActiveUserException;
-import com.tesis.proyect.app.domain.exceptions.UserNotFoundException;
+import com.tesis.proyect.app.domain.exceptions.*;
 import com.tesis.proyect.app.domain.models.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -52,6 +49,28 @@ public class GlobalControllerAdvice {
                 .code("NotFound 404")
                 .message(ex.getMessage())
                 .details(List.of("No se encontró un usuario con el email proporcionado"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(UserDidInterviewException.class)
+    public ErrorResponse handleUserDidInterview(UserDidInterviewException ex) {
+        return ErrorResponse.builder()
+                .code("BadRequest 400")
+                .message(ex.getMessage())
+                .details(List.of("El usuario ya ha realizado la entrevista"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InterviewNotAssignedException.class)
+    public ErrorResponse handleUserDidInterview(InterviewNotAssignedException ex) {
+        return ErrorResponse.builder()
+                .code("BadRequest 400")
+                .message(ex.getMessage())
+                .details(List.of("El usuario no tiene una entrevista asignada"))
                 .timestamp(LocalDateTime.now())
                 .build();
     }

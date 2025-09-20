@@ -21,14 +21,15 @@ public class UserInterviewController {
     private final UserInterviewService userInterviewService;
     private final UserInterviewMapper mapper;
 
-    @PreAuthorize("hasRole('RECLUTADOR')")
+    @PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
     @PostMapping(value = "/finishInterview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<UserInterview> finishInterview
             (@RequestPart("audios") Flux<FilePart> audios,
              @RequestPart("video") FilePart video,
              @RequestPart("userId") String userId,
-             @RequestPart("interviewId") String interviewId) {
-        return userInterviewService.saveUserInterview(audios, video, userId, interviewId);
+             @RequestPart("interviewId") String interviewId,
+             @RequestPart("durationMinutes") String durationMinutes) {
+        return userInterviewService.saveUserInterview(audios, video, userId, interviewId, durationMinutes);
     }
 
     @PreAuthorize("hasRole('RECLUTADOR')")

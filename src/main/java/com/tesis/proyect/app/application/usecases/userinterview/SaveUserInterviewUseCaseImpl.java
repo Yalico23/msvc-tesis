@@ -59,6 +59,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                                 userInterview.setInterviewId(interviewId);
                                 userInterview.setAnswers(answers);
                                 userInterview.setScore(score);
+                                userInterview.setDuration(null); // duración no implementada
                                 userInterview.setState(EstadoEntrevista.PENDIENTE.name());
 
                                 return interviewRepositoryPort.save(userInterview);
@@ -69,7 +70,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
     private Mono<String> makePrompt(String question, String answer) {
         String prompt = """
                 Eres un experto de recursos humanos que evaluará una respuesta en una entrevista.
-                Muy importante al momento de calificar si hay palabras sin sentido es por un tema de audio a texto puede que por ello encuentres fallas ortográficas o palabras que no tienen sentido. Evalúa lo que se llegue a entender
+                Muy importante al momento de calificar si hay palabras sin sentido es por un tema de audio a texto puede que por ello encuentres fallas ortográficas o palabras que no tienen sentido. Evalúa lo que se llegue a entender, si la respuesta no tiene nada que ver con la pregunta directamente calificalo con 0
                 La pregunta es: "%s"
                 La respuesta dada es: "%s"
                 

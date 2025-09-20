@@ -32,4 +32,9 @@ public class UserInterviewEntityAdapter implements UserInterviewRepositoryPort {
         return userInterviewEntityRespository.findAllByInterviewId(interviewId)
                 .map(mapper::toDomain);
     }
+
+    @Override
+    public Mono<Boolean> existsByUserId(String userId) {
+        return userInterviewEntityRespository.existsByUserId(userId);
+    }
 }

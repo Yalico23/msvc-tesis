@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-    // http://localhost:8081/swagger-ui.html
+    // http://localhost:8080/swagger-ui.html
     @Bean
     public OpenAPI hotelCleaningMaterialsOpenAPI() {
         return new OpenAPI()

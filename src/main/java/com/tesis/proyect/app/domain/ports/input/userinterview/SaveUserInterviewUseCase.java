@@ -6,5 +6,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface SaveUserInterviewUseCase {
-    Mono<UserInterview> saveUserInterview (Flux<FilePart> audios, FilePart fullVideo, String userId, String userInterview);
+    Mono<UserInterview> saveUserInterview
+            (Flux<FilePart> audios,
+             FilePart fullVideo,
+             String userId,
+             String userInterview);
 }

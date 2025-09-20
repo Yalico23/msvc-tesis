@@ -50,7 +50,7 @@ public class InterviewController {
     }
 
     @PreAuthorize("hasRole('PRACTICANTE')")
-    @GetMapping("/listInterviewByPracticanterId")
+    @GetMapping("/listInterviewPracticante")
     public Mono<ResponseEntity<Interview>> findByUserId
             (@RequestParam("practicanteId") String practicanteId) {
         return interviewService.findByUserIdAssigned(practicanteId)

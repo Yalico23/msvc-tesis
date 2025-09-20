@@ -10,4 +10,5 @@ import reactor.core.publisher.Mono;
 public interface UserInterviewEntityRespository extends ReactiveMongoRepository<UserInterviewEntity, String> {
     Mono<UserInterviewEntity> save (UserInterviewEntity userInterview);
     Flux<UserInterviewEntity> findAllByInterviewId(String interviewId);
+    Mono<Boolean> existsByUserId(String userId);
 }

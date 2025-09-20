@@ -25,6 +25,7 @@ public class UserInterviewEntity {
     private String userId; // quien realiza la entrevista
     private String interviewId; // entrevista realizada
     private String s3KeyPath; // path en s3
+    private Integer duration; // duracion en minutos
     private List<Answer> answers;
 
     @Getter
