@@ -10,13 +10,20 @@ import com.tesis.proyect.app.domain.ports.output.UserInterviewRepositoryPort;
 import com.tesis.proyect.app.domain.ports.output.WhisperExternalServicePort;
 import com.tesis.proyect.app.utils.EstadoEntrevista;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
 
@@ -37,7 +44,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
         }
         String videoKey = "entrevista/" + UUID.randomUUID() + extension;
 
-        return awsExternalServicePort.uploadFile(videoKey, fullVideo) // sube el video
+        return uploadFiles(fullVideo, audios) // sube el video
                 .flatMap(success -> {
                     if (!success) {
                         return Mono.error(new RuntimeException("Error al subir el video a S3"));
@@ -69,8 +76,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
 
     private Mono<String> makePrompt(String question, String answer) {
         String prompt = """
-                Eres un experto de recursos humanos que evaluará una respuesta en una entrevista.
-                Muy importante al momento de calificar si hay palabras sin sentido es por un tema de audio a texto puede que por ello encuentres fallas ortográficas o palabras que no tienen sentido. Evalúa lo que se llegue a entender, si la respuesta no tiene nada que ver con la pregunta directamente calificalo con 0
+                Eres un experto de recursos humanos que evaluará una respuesta en una entrevista, muy importante al momento de calificar si hay palabras sin sentido es por un tema de audio a texto puede que por ello encuentres fallas ortográficas o palabras que no tienen sentido. Evalúa lo que se llegue a entender, si la respuesta no tiene nada que ver con la pregunta directamente calificalo con 0, no seas tan rudo que mayormente los que daran la entrevista son practicantes o personas que no tienen mucha experiencia en entrevistas laborales.
                 La pregunta es: "%s"
                 La respuesta dada es: "%s"
                 
@@ -139,5 +145,49 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                             return new UserInterview.Answer(filenameWithoutExt, text, null, null);
                         })
         );
+    }
+
+    private static final String BASE_PATH = "uploads/interviews";
+
+    private Mono<Boolean> uploadFiles(FilePart fullVideo, Flux<FilePart> audios) {
+        // Ruta base (relativa)
+        Path interviewBasePath = Paths.get(BASE_PATH, "temp"); // 👈 usa "temp" o parametriza con interviewId
+        Path videoPath = interviewBasePath.resolve("video");
+        Path audioPath = interviewBasePath.resolve("audios");
+
+        try {
+            Files.createDirectories(videoPath);
+            Files.createDirectories(audioPath);
+        } catch (IOException e) {
+            log.error("❌ Error creando directorios para la entrevista", e);
+            return Mono.error(new RuntimeException("No se pudieron crear directorios", e));
+        }
+
+        // Guardar el video
+        Mono<Void> saveVideo = fullVideo.transferTo(
+                        videoPath.resolve("full-" + fullVideo.filename()).toFile()
+                ).doOnSubscribe(s -> log.info("▶ Guardando video completo..."))
+                .doOnSuccess(v -> log.info("✅ Video guardado en {}", videoPath.toAbsolutePath()))
+                .doOnError(err -> log.error("❌ Error guardando video", err));
+
+        // Guardar los audios
+        Mono<Void> saveAudios = audios
+                .flatMap(audio -> {
+                    String audioFileName = audio.filename();
+                    Path audioFilePath = audioPath.resolve(audioFileName);
+                    return audio.transferTo(audioFilePath.toFile())
+                            .doOnSubscribe(s -> log.info("▶ Guardando {}", audioFileName))
+                            .doOnSuccess(v -> log.info("✅ Audio guardado en {}", audioFilePath.toAbsolutePath()))
+                            .doOnError(err -> log.error("❌ Error guardando {}", audioFileName, err));
+                })
+                .then();
+
+        // Combinar ambas operaciones
+        return Mono.when(saveVideo, saveAudios)
+                .thenReturn(true)
+                .onErrorResume(err -> {
+                    log.error("❌ Error general guardando archivos", err);
+                    return Mono.just(false);
+                });
     }
 }
