@@ -2,12 +2,11 @@ package com.tesis.proyect.app.application.usecases.userinterview;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tesis.proyect.app.domain.exceptions.UserNotFoundException;
+import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.domain.ports.input.userinterview.SaveUserInterviewUseCase;
-import com.tesis.proyect.app.domain.ports.output.AwsExternalServicePort;
-import com.tesis.proyect.app.domain.ports.output.IAExternalServicePort;
-import com.tesis.proyect.app.domain.ports.output.UserInterviewRepositoryPort;
-import com.tesis.proyect.app.domain.ports.output.WhisperExternalServicePort;
+import com.tesis.proyect.app.domain.ports.output.*;
 import com.tesis.proyect.app.utils.EstadoEntrevista;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,18 +20,44 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
 public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
 
     private final WhisperExternalServicePort whisperExternalServicePort;
+    private final UserRepositoryPort userRepositoryPort;
     private final UserInterviewRepositoryPort interviewRepositoryPort;
     private final AwsExternalServicePort awsExternalServicePort;
     private final IAExternalServicePort iaExternalServicePort;
 
     @Override
-    public Mono<UserInterview> saveUserInterview
+    public Mono<UserInterview> saveUserInterview(String userId, String interviewId) {
+
+        return userRepositoryPort.findById(userId)
+                .switchIfEmpty(Mono.error(new UserNotFoundException("User not found with id: " + userId)))
+                .flatMap(user -> {
+                    user.setInterviewAsignedId(interviewId);
+                    return userRepositoryPort.save(user);
+                })
+                .flatMap(savedUser -> {
+                    UserInterview userInterview = new UserInterview();
+                    userInterview.setDate(LocalDate.now());
+                    userInterview.setState(EstadoEntrevista.PENDIENTE.name());
+                    userInterview.setScore(0);
+                    userInterview.setS3KeyPath("");
+                    userInterview.setInterviewId(interviewId);
+                    userInterview.setUserId(savedUser.getId());
+                    userInterview.setDuration(0);
+                    userInterview.setAnswers(null);
+                    return interviewRepositoryPort.save(userInterview);
+                });
+    }
+
+    @Override
+    public Mono<UserInterview> finishUserInterview
             (Flux<FilePart> audios, FilePart fullVideo, String userId, String interviewId, String durationMinutes) {
 
         String originalFilename = fullVideo.filename();
@@ -43,70 +68,113 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
         }
         String videoKey = "entrevista/" + UUID.randomUUID() + extension;
 
-        return uploadFiles(fullVideo, audios) // sube el video
-                .flatMap(success -> {
-                    if (!success) {
-                        return Mono.error(new RuntimeException("Error al subir el video a S3"));
-                    }
+        return interviewRepositoryPort.findByUserIdAndInterviewId(userId, interviewId)
+                .switchIfEmpty(Mono.error(new RuntimeException(
+                        "UserInterview not found for userId=" + userId + " and interviewId=" + interviewId)))
+                .flatMap(existingInterview ->
+                        uploadFiles(fullVideo, audios)
+                                .flatMap(success -> {
+                                    if (!success) {
+                                        return Mono.error(new RuntimeException("Error al subir el video a S3"));
+                                    }
 
-                    return getAnswers(audios) // procesar audios
-                            .flatMap(this::evaluateAnswerWithIA)
-                            .collectList()
-                            .flatMap(answers -> {
-                                // Calcular promedio de puntaje
-                                int score = answers.stream()
-                                        .mapToInt(UserInterview.Answer::getPoints)
-                                        .sum();
+                                    return getAnswers(audios)
+                                            .flatMap(this::evaluateAnswerWithIA)
+                                            .collectList()
+                                            .flatMap(answers -> {
+                                                int score = answers.stream()
+                                                        .mapToInt(UserInterview.Answer::getPoints)
+                                                        .sum();
 
-                                UserInterview userInterview = new UserInterview();
-                                userInterview.setS3KeyPath(videoKey);
-                                userInterview.setDate(LocalDate.now());
-                                userInterview.setUserId(userId);
-                                userInterview.setInterviewId(interviewId);
-                                userInterview.setAnswers(answers);
-                                userInterview.setScore(score);
-                                userInterview.setDuration(Integer.parseInt(durationMinutes));
-                                userInterview.setState(EstadoEntrevista.COMPLETADA.name());
+                                                existingInterview.setS3KeyPath(videoKey);
+                                                existingInterview.setDate(LocalDate.now());
+                                                existingInterview.setAnswers(answers);
+                                                existingInterview.setScore(score);
+                                                existingInterview.setDuration(Integer.parseInt(durationMinutes));
+                                                existingInterview.setState(EstadoEntrevista.COMPLETADA.name());
 
-                                return interviewRepositoryPort.save(userInterview);
-                            });
-                });
+                                                return interviewRepositoryPort.save(existingInterview);
+                                            });
+                                })
+                );
     }
 
     private Mono<String> makePrompt(String question, String answer) {
+        String cleanQuestion = cleanInputText(question);
+        String cleanAnswer = cleanInputText(answer);
         String prompt = """
-                Eres un experto de recursos humanos que evaluará una respuesta en una entrevista, muy importante al momento de calificar si hay palabras sin sentido es por un tema de audio a texto puede que por ello encuentres fallas ortográficas o palabras que no tienen sentido. Evalúa lo que se llegue a entender, si la respuesta no tiene nada que ver con la pregunta directamente calificalo con 0, no seas tan rudo que mayormente los que daran la entrevista son practicantes o personas que no tienen mucha experiencia en entrevistas laborales.
-                La pregunta es: "%s"
-                La respuesta dada es: "%s"
+                Evalúa esta respuesta de entrevista laboral.
                 
-                Devuelve SOLO un JSON válido con los campos:
-                {
-                  "score": <número entre 0 y 10>,
-                  "justification": "<máx 2 líneas explicando el puntaje>"
-                }
+                            INSTRUCCIONES ESTRICTAS:
+                            1. Califica de 0 a 10 puntos
+                            2. Si no responde la pregunta = 0 puntos
+                            3. Ignora errores ortográficos (puede ser transcripción de audio)
+                            4. Evalúa conocimiento técnico, no gramática
+                            5. Sé comprensivo con candidatos junior
+                
+                            PREGUNTA: %s
+                            RESPUESTA: %s
+                
+                            RESPONDE SOLO CON ESTE JSON (sin texto antes ni después):
+                            {"score":X,"justification":"texto de máximo 80 caracteres"}
+                
+                            IMPORTANTE:\s
+                            - NO agregues explicaciones
+                            - NO uses saltos de línea en justification
+                            - NO uses comillas dobles dentro de justification
+                            - El score debe ser un número entero del 0 al 10
+                            - La justification debe ser concisa y puntual no mucho texto
                 """
-                .formatted(question, answer);
+                .formatted(cleanQuestion, cleanAnswer);
         return Mono.just(prompt);
     }
 
-    private String sanitizeJson(String rawResponse) {
-        if (rawResponse == null) return "{}";
+    private String cleanInputText(String text) {
+        if (text == null) return "";
 
-        String cleaned = rawResponse.replaceAll("(?s)```json", "")
-                .replaceAll("(?s)```", "")
+        return text.replaceAll("[\r\n]+", " ")           // Saltos de línea -> espacios
+                .replaceAll("\\s+", " ")              // Múltiples espacios -> uno solo
+                .replaceAll("[\"\\'\\\\]", "")        // Quitar comillas y backslashes
+                .replaceAll("[{}\\[\\]]", "")         // Quitar caracteres JSON problemáticos
                 .trim();
+    }
 
-        if (cleaned.startsWith("json")) {
-            cleaned = cleaned.substring(4).trim();
+    private String sanitizeJson(String rawResponse) {
+        if (rawResponse == null || rawResponse.trim().isEmpty()) {
+            log.warn("⚠️ Respuesta IA vacía o nula");
+            return "{\"score\":0,\"justification\":\"Respuesta vacía\"}";
         }
 
-        // Escape de comillas dobles no escapadas dentro de justification u otros campos
-        // Básicamente: si hay una comilla dentro de un valor JSON, la escapamos
-        cleaned = cleaned.replaceAll(":(\\s*)\"([^\"]*?)\"(\\s*[},])",
-                        ": \"$2\"$3") // deja pasar el valor correcto
-                .replaceAll("([^\\\\])\"([^\":{}]+)\"", "$1\\\"$2\\\""); // escapa las internas
+        try {
+            // Paso 1: limpiar decoraciones (```json ... ```)
+            String cleaned = rawResponse
+                    .replaceAll("(?s)```json", "")
+                    .replaceAll("(?s)```", "")
+                    .trim();
 
-        return cleaned;
+            // Paso 2: validar parseo con Jackson
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(cleaned);
+
+            int score = node.has("score") ? node.get("score").asInt(0) : 0;
+            String justification = node.has("justification")
+                    ? node.get("justification").asText().trim()
+                    : "Sin justificación";
+
+            // Limitar longitud
+            if (justification.length() > 120) {
+                justification = justification.substring(0, 117) + "...";
+            }
+
+            // Paso 3: devolver JSON limpio
+            String result = String.format("{\"score\":%d,\"justification\":\"%s\"}", score, justification);
+            log.debug("✅ JSON validado: {}", result);
+            return result;
+
+        } catch (Exception e) {
+            log.error("❌ Error parseando respuesta IA: {}", rawResponse, e);
+            return "{\"score\":0,\"justification\":\"Error procesando respuesta IA\"}";
+        }
     }
 
 

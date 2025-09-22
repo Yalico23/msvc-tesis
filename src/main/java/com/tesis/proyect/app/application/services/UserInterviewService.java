@@ -20,11 +20,16 @@ public class UserInterviewService implements SaveUserInterviewUseCase, ListUserI
         this.listUserInterviewUseCase = listUserInterviewUseCase;
     }
 
+    @Override
+    public Mono<UserInterview> saveUserInterview(String userId, String userInterview) {
+        return saveUserInterviewUseCase.saveUserInterview(userId, userInterview);
+    }
+
     @Transactional
     @Override
-    public Mono<UserInterview> saveUserInterview
+    public Mono<UserInterview> finishUserInterview
             (Flux<FilePart> audios, FilePart fullVideo, String userId, String userInterview, String durationMinutes) {
-        return saveUserInterviewUseCase.saveUserInterview
+        return saveUserInterviewUseCase.finishUserInterview
                 (audios,fullVideo,userId,userInterview,durationMinutes);
     }
 

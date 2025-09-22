@@ -9,4 +9,5 @@ public interface UserInterviewRepositoryPort {
     Mono<UserInterview> save (UserInterview userInterview);
     Mono<Boolean> existsByUserId(String userId);
     Flux<UserInterview> findAll(Sort sort);
+    Mono<UserInterview> findByUserIdAndInterviewId(String userId, String interviewId);
 }

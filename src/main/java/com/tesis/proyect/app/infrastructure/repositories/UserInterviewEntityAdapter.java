@@ -32,4 +32,10 @@ public class UserInterviewEntityAdapter implements UserInterviewRepositoryPort {
         return userInterviewEntityRespository.findAll(sort).
                 map(mapper::toDomain);
     }
+
+    @Override
+    public Mono<UserInterview> findByUserIdAndInterviewId(String userId, String interviewId) {
+        return userInterviewEntityRespository.findByUserIdAndInterviewId(userId, interviewId).
+                map(mapper::toDomain);
+    }
 }

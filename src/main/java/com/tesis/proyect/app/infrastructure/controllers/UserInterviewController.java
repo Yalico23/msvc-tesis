@@ -1,6 +1,7 @@
 package com.tesis.proyect.app.infrastructure.controllers;
 
 import com.tesis.proyect.app.application.services.UserInterviewService;
+import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.infrastructure.dto.response.ListUserInterviewResponse;
 import com.tesis.proyect.app.infrastructure.mappers.UserInterviewMapper;
@@ -21,6 +22,16 @@ public class UserInterviewController {
     private final UserInterviewService userInterviewService;
     private final UserInterviewMapper mapper;
 
+    //@PreAuthorize("hasRole('RECLUTADOR')")
+    @PostMapping("/assignInterviewToPracticante")
+    public Mono<ResponseEntity<UserInterview>> assignInterviewToPracticante
+    (@RequestParam("userId") String userId,
+     @RequestParam("interviewId") String interviewId) {
+        return userInterviewService.saveUserInterview(userId, interviewId)
+                .map(updatedUser -> ResponseEntity.ok()
+                        .body(updatedUser));
+    }
+
     //@PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
     @PostMapping(value = "/finishInterview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<UserInterview> finishInterview
@@ -29,7 +40,7 @@ public class UserInterviewController {
              @RequestPart("userId") String userId,
              @RequestPart("interviewId") String interviewId,
              @RequestPart("durationMinutes") String durationMinutes) {
-        return userInterviewService.saveUserInterview(audios, video, userId, interviewId, durationMinutes);
+        return userInterviewService.finishUserInterview(audios, video, userId, interviewId, durationMinutes);
     }
 
     //@PreAuthorize("hasRole('RECLUTADOR')")

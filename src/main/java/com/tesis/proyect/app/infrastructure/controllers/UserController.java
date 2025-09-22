@@ -58,14 +58,4 @@ public class UserController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body));
     }
-
-    //@PreAuthorize("hasRole('RECLUTADOR')")
-    @PostMapping("/assignInterviewToPracticante")
-    public Mono<ResponseEntity<User>> assignInterviewToPracticante
-            (@RequestParam("userId") String userId,
-             @RequestParam("interviewId") String interviewId) {
-        return userService.assignInterviewToUser(userId, interviewId)
-                .map(updatedUser -> ResponseEntity.ok()
-                        .body(updatedUser));
-    }
 }
