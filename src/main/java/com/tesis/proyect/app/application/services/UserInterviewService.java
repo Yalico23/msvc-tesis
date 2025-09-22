@@ -30,7 +30,7 @@ public class UserInterviewService implements SaveUserInterviewUseCase, ListUserI
 
     @Transactional(readOnly = true)
     @Override
-    public Flux<UserInterview> listAllUserInterviews(String idInterview) {
-        return listUserInterviewUseCase.listAllUserInterviews(idInterview);
+    public Flux<UserInterview> findAll() {
+        return listUserInterviewUseCase.findAll();
     }
 }

@@ -1,6 +1,5 @@
 package com.tesis.proyect.app.infrastructure.documents;
 
-import com.tesis.proyect.app.domain.models.UserInterview;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

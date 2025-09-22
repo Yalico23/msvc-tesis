@@ -34,12 +34,11 @@ public class UserInterviewController {
 
     //@PreAuthorize("hasRole('RECLUTADOR')")
     @GetMapping("/findAll")
-    public Mono<ResponseEntity<Flux<ListUserInterviewResponse>>> findAllByInterviewId
-            (@RequestParam("interviewId") String interviewId) {
+    public Mono<ResponseEntity<Flux<ListUserInterviewResponse>>> findAllByInterviewId() {
         return Mono.just(
                 ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(userInterviewService.listAllUserInterviews(interviewId)
+                        .body(userInterviewService.findAll()
                                 .map(mapper::toListResponse))
         );
     }

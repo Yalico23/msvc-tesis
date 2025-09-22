@@ -4,5 +4,5 @@ import com.tesis.proyect.app.domain.models.UserInterview;
 import reactor.core.publisher.Flux;
 
 public interface ListUserInterviewUseCase {
-    Flux<UserInterview> listAllUserInterviews(String idInterview);
+    Flux<UserInterview> findAll();
 }

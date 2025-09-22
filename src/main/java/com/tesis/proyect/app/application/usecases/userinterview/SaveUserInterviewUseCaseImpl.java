@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,7 +66,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                                 userInterview.setAnswers(answers);
                                 userInterview.setScore(score);
                                 userInterview.setDuration(Integer.parseInt(durationMinutes));
-                                userInterview.setState(EstadoEntrevista.PENDIENTE.name());
+                                userInterview.setState(EstadoEntrevista.COMPLETADA.name());
 
                                 return interviewRepositoryPort.save(userInterview);
                             });
