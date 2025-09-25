@@ -3,6 +3,7 @@ package com.tesis.proyect.app.application.services;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.domain.ports.input.userinterview.ListUserInterviewUseCase;
 import com.tesis.proyect.app.domain.ports.input.userinterview.SaveUserInterviewUseCase;
+import com.tesis.proyect.app.infrastructure.dto.response.UserInterviewDetailResponse;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,13 @@ public class UserInterviewService implements SaveUserInterviewUseCase, ListUserI
 
     @Transactional(readOnly = true)
     @Override
-    public Flux<UserInterview> findAll() {
+    public Flux<UserInterviewDetailResponse> findAll() {
         return listUserInterviewUseCase.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Mono<UserInterviewDetailResponse> findByUserId(String userId) {
+        return listUserInterviewUseCase.findByUserId(userId);
     }
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -21,7 +22,7 @@ public class UserInterview {
     private String interviewId; // entrevista realizada
     private String s3KeyPath; // path en s3
     private Integer duration; // duracion en minutos
-    private List<Answer> answers;
+    private List<Answer> answers = new ArrayList<>();
 
     @Getter
     @Setter

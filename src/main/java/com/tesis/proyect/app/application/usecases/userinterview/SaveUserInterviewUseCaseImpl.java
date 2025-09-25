@@ -3,7 +3,6 @@ package com.tesis.proyect.app.application.usecases.userinterview;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesis.proyect.app.domain.exceptions.UserNotFoundException;
-import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.domain.ports.input.userinterview.SaveUserInterviewUseCase;
 import com.tesis.proyect.app.domain.ports.output.*;
@@ -20,8 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -108,8 +105,8 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                             INSTRUCCIONES ESTRICTAS:
                             1. Califica de 0 a 10 puntos
                             2. Si no responde la pregunta = 0 puntos
-                            3. Ignora errores ortográficos (puede ser transcripción de audio)
-                            4. Evalúa conocimiento técnico, no gramática
+                            3. Ignora errores de escritura y no evalues por ello
+                            4. Evalúa conocimiento técnico pero no muy estricto
                             5. Sé comprensivo con candidatos junior
                 
                             PREGUNTA: %s
@@ -119,11 +116,11 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                             {"score":X,"justification":"texto de máximo 80 caracteres"}
                 
                             IMPORTANTE:\s
-                            - NO agregues explicaciones
+                            - Poca explicación detallada y no uses caracteres especiales
                             - NO uses saltos de línea en justification
                             - NO uses comillas dobles dentro de justification
                             - El score debe ser un número entero del 0 al 10
-                            - La justification debe ser concisa y puntual no mucho texto
+                            - La justification debe ser concisa y puntual regular texto
                 """
                 .formatted(cleanQuestion, cleanAnswer);
         return Mono.just(prompt);

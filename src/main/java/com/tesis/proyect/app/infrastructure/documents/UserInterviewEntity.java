@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -25,7 +26,7 @@ public class UserInterviewEntity {
     private String interviewId; // entrevista realizada
     private String s3KeyPath; // path en s3
     private Integer duration; // duracion en minutos
-    private List<Answer> answers;
+    private List<Answer> answers = new ArrayList<>();
 
     @Getter
     @Setter

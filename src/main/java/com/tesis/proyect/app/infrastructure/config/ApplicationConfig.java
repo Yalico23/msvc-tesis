@@ -91,7 +91,8 @@ public class ApplicationConfig {
              UserRepositoryPort userRepositoryPort,
              UserInterviewRepositoryPort userInterviewRepositoryPort,
              AwsExternalServicePort awsExternalServicePort,
-             IAExternalServicePort iaExternalServicePort) {
+             IAExternalServicePort iaExternalServicePort,
+             InterviewRepositoryPort interviewRepositoryPort) {
         return new UserInterviewService(
                 new SaveUserInterviewUseCaseImpl
                         (whisperExternalServicePort,
@@ -99,7 +100,7 @@ public class ApplicationConfig {
                                 userInterviewRepositoryPort,
                                 awsExternalServicePort,
                                 iaExternalServicePort),
-                new ListUserInterviewUseCaseImpl(userInterviewRepositoryPort)
+                new ListUserInterviewUseCaseImpl(userInterviewRepositoryPort,userRepositoryPort,interviewRepositoryPort)
         );
     }
 

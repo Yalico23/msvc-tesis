@@ -4,6 +4,7 @@ import com.tesis.proyect.app.application.services.UserInterviewService;
 import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.infrastructure.dto.response.ListUserInterviewResponse;
+import com.tesis.proyect.app.infrastructure.dto.response.UserInterviewDetailResponse;
 import com.tesis.proyect.app.infrastructure.mappers.UserInterviewMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -35,22 +36,31 @@ public class UserInterviewController {
     //@PreAuthorize("hasAnyRole('RECLUTADOR','PRACTICANTE')")
     @PostMapping(value = "/finishInterview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<UserInterview> finishInterview
-            (@RequestPart("audios") Flux<FilePart> audios,
-             @RequestPart("video") FilePart video,
-             @RequestPart("userId") String userId,
-             @RequestPart("interviewId") String interviewId,
-             @RequestPart("durationMinutes") String durationMinutes) {
+    (@RequestPart("audios") Flux<FilePart> audios,
+     @RequestPart("video") FilePart video,
+     @RequestPart("userId") String userId,
+     @RequestPart("interviewId") String interviewId,
+     @RequestPart("durationMinutes") String durationMinutes) {
         return userInterviewService.finishUserInterview(audios, video, userId, interviewId, durationMinutes);
     }
 
     //@PreAuthorize("hasRole('RECLUTADOR')")
     @GetMapping("/findAll")
-    public Mono<ResponseEntity<Flux<ListUserInterviewResponse>>> findAllByInterviewId() {
+    public Mono<ResponseEntity<Flux<UserInterviewDetailResponse>>> findAllByInterviewId() {
         return Mono.just(
                 ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(userInterviewService.findAll()
-                                .map(mapper::toListResponse))
+                        .body(userInterviewService.findAll())
+        );
+    }
+
+    @GetMapping("/findByUserId")
+    public Mono<ResponseEntity<UserInterviewDetailResponse>> findByUserId
+            (@RequestParam("userId") String userId) {
+        return userInterviewService.findByUserId(userId)
+                .map(userInterview -> ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(userInterview)
         );
     }
 }

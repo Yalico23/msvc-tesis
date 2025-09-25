@@ -28,8 +28,14 @@ public class UserInterviewEntityAdapter implements UserInterviewRepositoryPort {
     }
 
     @Override
-    public Flux<UserInterview> findAll(Sort sort) {
-        return userInterviewEntityRespository.findAll(sort).
+    public Mono<UserInterview> findByUserId(String userId) {
+        return userInterviewEntityRespository.findByUserId(userId)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Flux<UserInterview> findAll() {
+        return userInterviewEntityRespository.findAll().
                 map(mapper::toDomain);
     }
 
