@@ -35,7 +35,6 @@ public class ListInterviewUseCaseImpl implements ListInterviewUseCase {
                         return Mono.error(new InterviewNotAssignedException(
                                 "User with id: " + userId + " has no interview assigned"));
                     }
-
                     return interviewRepositoryPort.findByUserId(userId)
                             .flatMap(userInterview -> {
                                 if (!userInterview.getAnswers().isEmpty()) {

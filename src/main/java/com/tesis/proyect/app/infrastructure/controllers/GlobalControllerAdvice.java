@@ -86,6 +86,17 @@ public class GlobalControllerAdvice {
                 .build();
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @ExceptionHandler(UserDidNotInterviewException.class)
+    public ErrorResponse handleUserDidNotInterview(UserDidNotInterviewException ex) {
+        return ErrorResponse.builder()
+                .code("OK 200")
+                .message(ex.getMessage())
+                .details(List.of("El usuario no ha realizado la entrevista o no tiene una asignada"))
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(NoActiveUserException.class)
     public ErrorResponse handleInvalidCredentials(NoActiveUserException ex) {

@@ -100,7 +100,11 @@ public class ApplicationConfig {
                                 userInterviewRepositoryPort,
                                 awsExternalServicePort,
                                 iaExternalServicePort),
-                new ListUserInterviewUseCaseImpl(userInterviewRepositoryPort,userRepositoryPort,interviewRepositoryPort)
+                new ListUserInterviewUseCaseImpl
+                        (userInterviewRepositoryPort,
+                                userRepositoryPort,
+                                interviewRepositoryPort,
+                                awsExternalServicePort)
         );
     }
 
