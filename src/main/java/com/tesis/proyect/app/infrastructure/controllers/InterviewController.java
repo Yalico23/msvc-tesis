@@ -57,4 +57,11 @@ public class InterviewController {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(interview));
     }
+
+    @DeleteMapping("/delete/{id}" )
+    public Mono<ResponseEntity<Void>> deleteInterview(@PathVariable("id") String interviewId)
+    {
+        return interviewService.deleteInterview(interviewId)
+                .then(Mono.just(ResponseEntity.noContent().build()));
+    }
 }

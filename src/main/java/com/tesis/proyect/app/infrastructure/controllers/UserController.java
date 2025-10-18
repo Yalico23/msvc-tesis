@@ -4,6 +4,7 @@ import com.tesis.proyect.app.application.services.UserService;
 import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.infrastructure.dto.request.CreateUserRequest;
 import com.tesis.proyect.app.infrastructure.dto.response.FindUserByEmailResponse;
+import com.tesis.proyect.app.infrastructure.dto.response.ListPartResponse;
 import com.tesis.proyect.app.infrastructure.dto.response.ListPracticantesResponse;
 import com.tesis.proyect.app.infrastructure.mappers.UserMapper;
 import jakarta.validation.Valid;
@@ -56,6 +57,16 @@ public class UserController {
 
         return Mono.just(ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
+                .body(body));
+    }
+
+    @GetMapping("/listPracticantes/v2")
+    public Mono<ResponseEntity<Flux<ListPartResponse>>> listPracticantesV2(){
+
+        Flux<ListPartResponse> body = userService.findByRolNameAnsStatus();
+
+        return Mono.just(ResponseEntity.ok().
+                contentType(MediaType.APPLICATION_JSON)
                 .body(body));
     }
 }

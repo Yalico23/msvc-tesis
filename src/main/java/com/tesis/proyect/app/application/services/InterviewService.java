@@ -1,6 +1,7 @@
 package com.tesis.proyect.app.application.services;
 
 import com.tesis.proyect.app.domain.models.Interview;
+import com.tesis.proyect.app.domain.ports.input.interview.DeleteInterviewUseCase;
 import com.tesis.proyect.app.domain.ports.input.interview.ListInterviewUseCase;
 import com.tesis.proyect.app.domain.ports.input.interview.SaveInterviewUseCase;
 import org.springframework.stereotype.Service;
@@ -11,14 +12,17 @@ import reactor.core.publisher.Mono;
 @Service
 public class InterviewService implements
         SaveInterviewUseCase,
-        ListInterviewUseCase {
+        ListInterviewUseCase,
+        DeleteInterviewUseCase {
 
     private final SaveInterviewUseCase saveInterviewUseCase;
     private final ListInterviewUseCase listInterviewUseCase;
+    private final DeleteInterviewUseCase deleteInterviewUseCase;;
 
-    public InterviewService(SaveInterviewUseCase saveInterviewUseCase, ListInterviewUseCase listInterviewUseCase) {
+    public InterviewService(SaveInterviewUseCase saveInterviewUseCase, ListInterviewUseCase listInterviewUseCase, DeleteInterviewUseCase deleteInterviewUseCase) {
         this.saveInterviewUseCase = saveInterviewUseCase;
         this.listInterviewUseCase = listInterviewUseCase;
+        this.deleteInterviewUseCase = deleteInterviewUseCase;
     }
 
     @Transactional
@@ -43,5 +47,11 @@ public class InterviewService implements
     @Override
     public Mono<Interview> findByUserIdAssigned(String userIdAssigned) {
         return listInterviewUseCase.findByUserIdAssigned(userIdAssigned);
+    }
+
+    @Transactional
+    @Override
+    public Mono<Void> deleteInterview(String interviewId) {
+        return deleteInterviewUseCase.deleteInterview(interviewId);
     }
 }

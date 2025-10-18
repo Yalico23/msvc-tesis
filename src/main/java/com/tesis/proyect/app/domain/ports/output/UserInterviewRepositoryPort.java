@@ -10,4 +10,5 @@ public interface UserInterviewRepositoryPort {
     Mono<UserInterview> findByUserId(String userId);
     Flux<UserInterview> findAll();
     Mono<UserInterview> findByUserIdAndInterviewId(String userId, String interviewId);
+    Mono<UserInterview> findByInterviewId(String Interviewid);
 }

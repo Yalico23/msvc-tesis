@@ -32,4 +32,9 @@ public class InterviewEntityAdapter implements InterviewRepositoryPort {
         return interviewEntityRepository.findById(id)
                 .map(mapper::toModel);
     }
+
+    @Override
+    public Mono<Void> deleteById(String id) {
+        return interviewEntityRepository.deleteById(id);
+    }
 }

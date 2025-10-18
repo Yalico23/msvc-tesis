@@ -9,4 +9,5 @@ public interface InterviewRepositoryPort {
     Mono<Interview> save (Interview interview);
     Flux<Interview> findAll();
     Mono<Interview> findById(String id);
+    Mono<Void> deleteById(String id);
 }

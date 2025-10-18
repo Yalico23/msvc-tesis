@@ -42,4 +42,5 @@ openai:
     url: https://openrouter.ai/api/v1/chat/completions
   whisper:
     url: ${WHISPER_URL:http://localhost:9000/asr?task=transcribe&language=es}
+    api-key: ${WHISPER_API_KEY}
 

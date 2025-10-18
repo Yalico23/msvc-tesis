@@ -4,6 +4,7 @@ import com.tesis.proyect.app.application.services.InterviewService;
 import com.tesis.proyect.app.application.services.RolService;
 import com.tesis.proyect.app.application.services.UserInterviewService;
 import com.tesis.proyect.app.application.services.UserService;
+import com.tesis.proyect.app.application.usecases.interview.DeleteInterviewUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.interview.ListInterviewUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.interview.SaveInterviewUseCaseImpl;
 import com.tesis.proyect.app.application.usecases.rol.CreateRolUseCaseImpl;
@@ -44,10 +45,13 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public UserService userService(UserRepositoryPort userRepositoryPort, RolRepositoryPort rolRepositoryPort, PasswordEncoder passwordEncoder) {
+    public UserService userService(UserRepositoryPort userRepositoryPort,
+                                   RolRepositoryPort rolRepositoryPort,
+                                   UserInterviewRepositoryPort userInterviewRepositoryPort,
+                                   PasswordEncoder passwordEncoder) {
         return new UserService(
                 new CreateUserUseCaseImpl(userRepositoryPort, rolRepositoryPort, passwordEncoder),
-                new FindUserUSerCaseImpl(userRepositoryPort)
+                new FindUserUSerCaseImpl(userRepositoryPort,userInterviewRepositoryPort)
         );
     }
 
@@ -76,7 +80,8 @@ public class ApplicationConfig {
         return new InterviewService(
                 new SaveInterviewUseCaseImpl(interviewRepositoryPort),
                 new ListInterviewUseCaseImpl
-                        (interviewRepositoryPort, userRepositoryPort,userInterviewRepositoryPort)
+                        (interviewRepositoryPort, userRepositoryPort,userInterviewRepositoryPort),
+                new DeleteInterviewUseCaseImpl(interviewRepositoryPort,userInterviewRepositoryPort)
         );
     }
 

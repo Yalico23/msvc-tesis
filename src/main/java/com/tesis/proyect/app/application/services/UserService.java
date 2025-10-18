@@ -3,6 +3,7 @@ package com.tesis.proyect.app.application.services;
 import com.tesis.proyect.app.domain.models.User;
 import com.tesis.proyect.app.domain.ports.input.user.CreateUserUseCase;
 import com.tesis.proyect.app.domain.ports.input.user.FindUserUSerCase;
+import com.tesis.proyect.app.infrastructure.dto.response.ListPartResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -36,5 +37,11 @@ public class UserService implements CreateUserUseCase, FindUserUSerCase {
     @Override
     public Flux<User> findByRoleName(String roleName) {
         return findUserUSerCase.findByRoleName(roleName);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Flux<ListPartResponse> findByRolNameAnsStatus() {
+        return findUserUSerCase.findByRolNameAnsStatus();
     }
 }

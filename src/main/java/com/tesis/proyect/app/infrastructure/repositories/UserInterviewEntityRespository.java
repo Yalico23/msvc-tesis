@@ -13,4 +13,5 @@ public interface UserInterviewEntityRespository extends ReactiveMongoRepository<
     Mono<Boolean> existsByUserId(String userId);
     Mono<UserInterviewEntity> findByUserId(String userId);
     Flux<UserInterviewEntity> findAll();
+    Mono<UserInterviewEntity> findByInterviewId(String interviewId);
 }
