@@ -7,6 +7,7 @@ import com.tesis.proyect.app.domain.ports.input.user.FindUserUSerCase;
 import com.tesis.proyect.app.domain.ports.output.UserInterviewRepositoryPort;
 import com.tesis.proyect.app.domain.ports.output.UserRepositoryPort;
 import com.tesis.proyect.app.infrastructure.dto.response.ListPartResponse;
+import com.tesis.proyect.app.utils.EstadoEntrevista;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,7 +51,7 @@ public class FindUserUSerCaseImpl implements FindUserUSerCase {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .interviewStatus(
-                        userInterview != null ? userInterview.getState() : "NO_ASIGNADA"
+                        userInterview != null ? userInterview.getState() : EstadoEntrevista.NO_ASIGNADA.name()
                 )
                 .build();
     }

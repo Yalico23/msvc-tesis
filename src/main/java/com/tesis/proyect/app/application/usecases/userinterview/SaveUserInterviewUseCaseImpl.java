@@ -99,11 +99,9 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                 Evalúa esta respuesta de entrevista laboral.
                 
                             INSTRUCCIONES ESTRICTAS:
-                            1. Califica de 0 a 10 puntos
-                            2. Si no responde la pregunta = 0 puntos
-                            3. Ignora errores de escritura y no evalues por ello
-                            4. Evalúa conocimiento técnico pero no muy estricto
-                            5. Sé comprensivo con candidatos junior
+                            1. score de 0 a 10 puntos
+                            3. Ignora errores de escritura
+                            4. No evalues muy bajo
                 
                             PREGUNTA: %s
                             RESPUESTA: %s
@@ -115,7 +113,6 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                             - Poca explicación detallada y no uses caracteres especiales
                             - NO uses saltos de línea en justification
                             - NO uses comillas dobles dentro de justification
-                            - El score debe ser un número entero del 0 al 10
                             - La justification debe ser concisa y puntual regular texto
                 """
                 .formatted(cleanQuestion, cleanAnswer);
@@ -199,6 +196,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                 whisperExternalServicePort.getTextFromFile(audio) // devuelve Mono<String>
                         .map(text -> {
                             String originalName = audio.filename();
+                            log.info("Nombre del archivo, {}", originalName);
                             String filenameWithoutExt = originalName.contains(".")
                                     ? originalName.substring(0, originalName.lastIndexOf('.'))
                                     : originalName;
