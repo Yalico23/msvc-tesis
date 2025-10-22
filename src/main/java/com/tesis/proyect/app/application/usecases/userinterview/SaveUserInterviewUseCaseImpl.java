@@ -3,6 +3,8 @@ package com.tesis.proyect.app.application.usecases.userinterview;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesis.proyect.app.domain.exceptions.UserNotFoundException;
+import com.tesis.proyect.app.domain.models.Interview;
+import com.tesis.proyect.app.domain.models.Question;
 import com.tesis.proyect.app.domain.models.UserInterview;
 import com.tesis.proyect.app.domain.ports.input.userinterview.SaveUserInterviewUseCase;
 import com.tesis.proyect.app.domain.ports.output.*;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -22,9 +25,10 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
 
     private final WhisperExternalServicePort whisperExternalServicePort;
     private final UserRepositoryPort userRepositoryPort;
-    private final UserInterviewRepositoryPort interviewRepositoryPort;
+    private final UserInterviewRepositoryPort userInterviewRepositoryPort;
     private final AwsExternalServicePort awsExternalServicePort;
     private final IAExternalServicePort iaExternalServicePort;
+    private final InterviewRepositoryPort interviewRepositoryPort;
 
     @Override
     public Mono<UserInterview> saveUserInterview(String userId, String interviewId) {
@@ -45,7 +49,7 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                     userInterview.setUserId(savedUser.getId());
                     userInterview.setDuration(0);
                     userInterview.setAnswers(null);
-                    return interviewRepositoryPort.save(userInterview);
+                    return userInterviewRepositoryPort.save(userInterview);
                 });
     }
 
@@ -61,34 +65,40 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
         }
         String videoKey = "entrevista/" + UUID.randomUUID() + extension;
 
-        return interviewRepositoryPort.findByUserIdAndInterviewId(userId, interviewId)
+        return userInterviewRepositoryPort.findByUserIdAndInterviewId(userId, interviewId)
                 .switchIfEmpty(Mono.error(new RuntimeException(
                         "UserInterview not found for userId=" + userId + " and interviewId=" + interviewId)))
                 .flatMap(existingInterview ->
-                        awsExternalServicePort.uploadFile(videoKey,fullVideo)
-                                .flatMap(success -> {
-                                    if (!success) {
-                                        return Mono.error(new RuntimeException("Error al subir el video a S3"));
-                                    }
+                        // Primero obtenemos la entrevista para acceder a las preguntas
+                        interviewRepositoryPort.findById(interviewId)
+                                .switchIfEmpty(Mono.error(new RuntimeException("Interview not found: " + interviewId)))
+                                .flatMap(interview ->
+                                        awsExternalServicePort.uploadFile(videoKey, fullVideo)
+                                                .flatMap(success -> {
+                                                    if (!success) {
+                                                        return Mono.error(new RuntimeException("Error al subir el video a S3"));
+                                                    }
 
-                                    return getAnswers(audios)
-                                            .flatMap(this::evaluateAnswerWithIA)
-                                            .collectList()
-                                            .flatMap(answers -> {
-                                                int score = answers.stream()
-                                                        .mapToInt(UserInterview.Answer::getPoints)
-                                                        .sum();
+                                                    // Pasamos las preguntas al método getAnswers
+                                                    return getAnswers(audios, interview.getQuestions())
+                                                            .flatMap(this::evaluateAnswerWithIA)
+                                                            .collectList()
+                                                            .flatMap(answers -> {
+                                                                int score = answers.stream()
+                                                                        .mapToInt(UserInterview.Answer::getPoints)
+                                                                        .sum();
 
-                                                existingInterview.setS3KeyPath(videoKey);
-                                                existingInterview.setDate(LocalDate.now());
-                                                existingInterview.setAnswers(answers);
-                                                existingInterview.setScore(score);
-                                                existingInterview.setDuration(Integer.parseInt(durationMinutes));
-                                                existingInterview.setState(EstadoEntrevista.COMPLETADA.name());
+                                                                existingInterview.setS3KeyPath(videoKey);
+                                                                existingInterview.setDate(LocalDate.now());
+                                                                existingInterview.setAnswers(answers);
+                                                                existingInterview.setScore(score);
+                                                                existingInterview.setDuration(Integer.parseInt(durationMinutes));
+                                                                existingInterview.setState(EstadoEntrevista.COMPLETADA.name());
 
-                                                return interviewRepositoryPort.save(existingInterview);
-                                            });
-                                })
+                                                                return userInterviewRepositoryPort.save(existingInterview);
+                                                            });
+                                                })
+                                )
                 );
     }
 
@@ -100,8 +110,8 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                 
                             INSTRUCCIONES ESTRICTAS:
                             1. score de 0 a 10 puntos
-                            3. Ignora errores de escritura
-                            4. No evalues muy bajo
+                            2. Ignora errores de escritura
+                            3. No evalues muy bajo
                 
                             PREGUNTA: %s
                             RESPUESTA: %s
@@ -191,16 +201,28 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
     }
 
 
-    private Flux<UserInterview.Answer> getAnswers(Flux<FilePart> audios) {
+    private Flux<UserInterview.Answer> getAnswers(Flux<FilePart> audios, List<Question> questions) {
         return audios.flatMap(audio ->
-                whisperExternalServicePort.getTextFromFile(audio) // devuelve Mono<String>
+                whisperExternalServicePort.getTextFromFile(audio)
                         .map(text -> {
                             String originalName = audio.filename();
-                            log.info("Nombre del archivo, {}", originalName);
-                            String filenameWithoutExt = originalName.contains(".")
+                            log.info("Nombre del archivo: {}", originalName);
+
+                            // Extraer el ID del nombre del archivo (sin extensión)
+                            String questionId = originalName.contains(".")
                                     ? originalName.substring(0, originalName.lastIndexOf('.'))
                                     : originalName;
-                            return new UserInterview.Answer(filenameWithoutExt, text, null, null);
+
+                            // Buscar la pregunta por ID en la lista
+                            String questionText = questions.stream()
+                                    .filter(q -> q.getId().equals(questionId))
+                                    .findFirst()
+                                    .map(Question::getText)
+                                    .orElse("Pregunta no encontrada (ID: " + questionId + ")");
+
+                            log.info("ID de pregunta extraído: {}, Texto: {}", questionId, questionText);
+
+                            return new UserInterview.Answer(questionText, text, null, null);
                         })
         );
     }

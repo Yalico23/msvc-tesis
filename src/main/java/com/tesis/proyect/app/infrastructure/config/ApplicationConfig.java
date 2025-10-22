@@ -104,7 +104,8 @@ public class ApplicationConfig {
                                 userRepositoryPort,
                                 userInterviewRepositoryPort,
                                 awsExternalServicePort,
-                                iaExternalServicePort),
+                                iaExternalServicePort,
+                                interviewRepositoryPort),
                 new ListUserInterviewUseCaseImpl
                         (userInterviewRepositoryPort,
                                 userRepositoryPort,
