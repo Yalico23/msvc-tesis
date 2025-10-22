@@ -6,6 +6,7 @@ import com.tesis.proyect.app.domain.ports.output.InterviewRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class SaveInterviewUseCaseImpl implements SaveInterviewUseCase {
@@ -17,6 +18,7 @@ public class SaveInterviewUseCaseImpl implements SaveInterviewUseCase {
         return Mono.just(interview)
                 .map(i -> {
                     i.setCreatedAt(LocalDate.now());
+                    i.getQuestions().forEach(q -> q.setId(UUID.randomUUID().toString().substring(0, 15)));
                     return i;
                 })
                 .flatMap(interviewRepositoryPort::save);
