@@ -69,7 +69,6 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                 .switchIfEmpty(Mono.error(new RuntimeException(
                         "UserInterview not found for userId=" + userId + " and interviewId=" + interviewId)))
                 .flatMap(existingInterview ->
-                        // Primero obtenemos la entrevista para acceder a las preguntas
                         interviewRepositoryPort.findById(interviewId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("Interview not found: " + interviewId)))
                                 .flatMap(interview ->
@@ -79,9 +78,9 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                                                         return Mono.error(new RuntimeException("Error al subir el video a S3"));
                                                     }
 
-                                                    // Pasamos las preguntas al método getAnswers
+                                                    // Pasamos el objeto Interview completo para acceder a título y descripción
                                                     return getAnswers(audios, interview.getQuestions())
-                                                            .flatMap(this::evaluateAnswerWithIA)
+                                                            .flatMap(answer -> evaluateAnswerWithIA(answer, interview))
                                                             .collectList()
                                                             .flatMap(answers -> {
                                                                 int score = answers.stream()
@@ -102,30 +101,38 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
                 );
     }
 
-    private Mono<String> makePrompt(String question, String answer) {
+    private Mono<String> makePrompt(String question, String answer, Interview interview) {
         String cleanQuestion = cleanInputText(question);
         String cleanAnswer = cleanInputText(answer);
+        String cleanTitle = cleanInputText(interview.getTitle());
+        String cleanDescription = cleanInputText(interview.getDescription());
+
         String prompt = """
-                Evalúa esta respuesta de entrevista laboral.
-                
-                            INSTRUCCIONES ESTRICTAS:
-                            1. score de 0 a 10 puntos
-                            2. Ignora errores de escritura
-                            3. No evalues muy bajo
-                
-                            PREGUNTA: %s
-                            RESPUESTA: %s
-                
-                            RESPONDE SOLO CON ESTE JSON (sin texto antes ni después):
-                            {"score":X,"justification":"texto de máximo 80 caracteres"}
-                
-                            IMPORTANTE:\s
-                            - Poca explicación detallada y no uses caracteres especiales
-                            - NO uses saltos de línea en justification
-                            - NO uses comillas dobles dentro de justification
-                            - La justification debe ser concisa y puntual regular texto
-                """
-                .formatted(cleanQuestion, cleanAnswer);
+            Evalúa esta respuesta de entrevista laboral.
+            
+            CONTEXTO DE LA ENTREVISTA:
+            Título: %s
+            Descripción: %s
+            
+            INSTRUCCIONES ESTRICTAS:
+            1. score de 0 a 10 puntos
+            2. Ignora errores de escritura
+            3. No evalues muy bajo
+            4. Considera el contexto del título y descripción de la entrevista
+            
+            PREGUNTA: %s
+            RESPUESTA: %s
+            
+            RESPONDE SOLO CON ESTE JSON (sin texto antes ni después):
+            {"score":X,"justification":"texto de máximo 80 caracteres"}
+            
+            IMPORTANTE: 
+            - Poca explicación detallada y no uses caracteres especiales
+            - NO uses saltos de línea en justification
+            - NO uses comillas dobles dentro de justification
+            - La justification debe ser concisa y puntual regular texto
+            """
+                .formatted(cleanTitle, cleanDescription, cleanQuestion, cleanAnswer);
         return Mono.just(prompt);
     }
 
@@ -178,10 +185,10 @@ public class SaveUserInterviewUseCaseImpl implements SaveUserInterviewUseCase {
     }
 
 
-    private Mono<UserInterview.Answer> evaluateAnswerWithIA(UserInterview.Answer answer) {
-        return makePrompt(answer.getQuestionText(), answer.getResponseText())
+    private Mono<UserInterview.Answer> evaluateAnswerWithIA(UserInterview.Answer answer, Interview interview) {
+        return makePrompt(answer.getQuestionText(), answer.getResponseText(), interview)
                 .flatMap(iaExternalServicePort::getIaServiceResponse)
-                .map(this::sanitizeJson) // 👈 limpiar la respuesta
+                .map(this::sanitizeJson)
                 .flatMap(rawResponse -> {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
