@@ -32,8 +32,6 @@ public class AwsExternalServiceAdapter implements AwsExternalServicePort {
 
     @Override
     public Mono<Boolean> uploadFile(String key, FilePart filePart) {
-        log.info("Iniciando subida multipart de archivo grande: {}", key);
-
         return filePart.content()
                 .collectList()
                 .flatMap(dataBuffers -> {

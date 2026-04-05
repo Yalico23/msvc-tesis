@@ -2,6 +2,7 @@ package com.tesis.proyect.app.infrastructure.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -59,21 +60,15 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Orígenes permitidos (ajusta según tu frontend)
-        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Para desarrollo
-        // Para producción, especifica los dominios exactos:
-        // configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://tu-dominio.com"));
+        // IMPORTANTE: Especifica el origen exacto de tu frontend de Vercel
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://entrevistas-tesis.vercel.app",
+                "http://localhost:3000" // Para desarrollo
+        ));
 
-        // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // Headers permitidos
         configuration.setAllowedHeaders(Arrays.asList("*"));
-
-        // Permitir credenciales (cookies, authorization headers, etc.)
         configuration.setAllowCredentials(true);
-
-        // Tiempo de cache para preflight requests
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

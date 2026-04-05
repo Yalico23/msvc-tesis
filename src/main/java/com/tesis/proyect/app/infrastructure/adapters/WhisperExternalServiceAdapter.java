@@ -58,4 +58,4 @@ public class WhisperExternalServiceAdapter implements WhisperExternalServicePort
                 .doOnNext(resp -> log.info("Respuesta Whisper OK"))
                 .doOnError(err -> log.error("Error llamando a Whisper API", err));
     }
-}
+}   
